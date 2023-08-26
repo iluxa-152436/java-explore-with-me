@@ -15,7 +15,8 @@ public interface HitStorage extends JpaRepository<Hit, Long> {
             "COUNT(h.ip) AS hits " +
             "FROM Hit AS h " +
             "WHERE h.timeStamp BETWEEN ?1 AND ?2 " +
-            "GROUP BY h.app, h.uri")
+            "GROUP BY h.app, h.uri " +
+            "ORDER BY hits desc")
     List<Stats> findStat(LocalDateTime start, LocalDateTime end);
 
     @Query("SELECT " +
@@ -24,7 +25,8 @@ public interface HitStorage extends JpaRepository<Hit, Long> {
             "COUNT(DISTINCT(h.ip)) AS hits " +
             "FROM Hit AS h " +
             "WHERE h.timeStamp BETWEEN ?1 AND ?2 " +
-            "GROUP BY h.app, h.uri")
+            "GROUP BY h.app, h.uri " +
+            "ORDER BY hits desc")
     List<Stats> findUniqueStat(LocalDateTime start, LocalDateTime end);
 
     @Query("SELECT " +
@@ -33,7 +35,8 @@ public interface HitStorage extends JpaRepository<Hit, Long> {
             "COUNT(DISTINCT(h.ip)) AS hits " +
             "FROM Hit AS h " +
             "WHERE (h.timeStamp BETWEEN :start AND :end) AND (uri IN (:uris)) " +
-            "GROUP BY h.app, h.uri")
+            "GROUP BY h.app, h.uri " +
+            "ORDER BY hits desc")
     List<Stats> findUniqueStatByUris(LocalDateTime start, LocalDateTime end, List<String> uris);
 
     @Query("SELECT " +
@@ -42,6 +45,7 @@ public interface HitStorage extends JpaRepository<Hit, Long> {
             "COUNT(h.ip) AS hits " +
             "FROM Hit AS h " +
             "WHERE (h.timeStamp BETWEEN :start AND :end) AND (uri IN (:uris)) " +
-            "GROUP BY h.app, h.uri")
+            "GROUP BY h.app, h.uri " +
+            "ORDER BY hits desc")
     List<Stats> findStatByUris(LocalDateTime start, LocalDateTime end, List<String> uris);
 }
