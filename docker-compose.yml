@@ -30,3 +30,10 @@ services:
 
   ewm-db:
     image: postgres:14-alpine
+    container_name: stats-db
+    ports:
+      - "6542:5433"
+    environment:
+      - POSTGRES_PASSWORD=stats
+      - POSTGRES_USER=stats
+      - POSTGRES_DB=stats
