@@ -20,17 +20,9 @@ public class StatsServiceImpl implements StatsService {
     public List<Stats> findStats(LocalDateTime start, LocalDateTime end, boolean unique, Optional<List<String>> uris) {
         log.debug("find parameters: start {}, end {}, unique {}, uris {}", start, end, unique, uris);
         if (uris.isPresent()) {
-            if (unique) {
-                return storage.findUniqueStatByUris(start, end, uris.get());
-            } else {
-                return storage.findStatByUris(start, end, uris.get());
-            }
+            return unique ? storage.findUniqueStatByUris(start, end, uris.get()) : storage.findStatByUris(start, end, uris.get());
         } else {
-            if (unique) {
-                return storage.findUniqueStat(start, end);
-            } else {
-                return storage.findStat(start, end);
-            }
+            return unique ? storage.findUniqueStat(start, end) : storage.findStat(start, end);
         }
     }
 }

@@ -6,9 +6,5 @@ import java.util.List;
 
 @Data
 public class HitListDto {
-    private List<HitGetDto> hits;
-
-    public HitListDto() {
-        hits = new ArrayList<>();
-    }
+    private List<HitGetDto> hits = new ArrayList<>();
 }
