@@ -22,6 +22,6 @@ public class Location {
     private float lat;
     @Column(name = "lon", nullable = false)
     private float lon;
-    @OneToMany(mappedBy = "events")
+    @OneToMany(mappedBy = "location")
     private Set<Event> events;
 }
