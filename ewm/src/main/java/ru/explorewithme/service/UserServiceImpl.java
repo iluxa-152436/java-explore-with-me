@@ -45,6 +45,13 @@ public class UserServiceImpl implements UserService {
         } else throw new NotFoundException("User with id=" + userId + " was not found");
     }
 
+    @Override
+    public void verifyUserExistence(long userId) {
+        if (!storage.existsById(userId)) {
+            throw new NotFoundException("User with id=" + userId + " was not found");
+        }
+    }
+
     private static PageRequest getPageable(int from, int size) {
         if (from < 0 || size < 1) {
             throw new IllegalArgumentException("From and size must be valid");

@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
 import javax.persistence.*;
-import java.util.Set;
 
 @Data
 @AllArgsConstructor
@@ -19,9 +18,9 @@ public class Location {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     @Column(name = "lat", nullable = false)
-    private float lat;
+    private double lat;
     @Column(name = "lon", nullable = false)
-    private float lon;
-    @OneToMany(mappedBy = "location")
-    private Set<Event> events;
+    private double lon;
+    @OneToOne(mappedBy = "location")
+    private Event event;
 }

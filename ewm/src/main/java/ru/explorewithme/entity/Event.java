@@ -21,17 +21,15 @@ public class Event {
     private long id;
     @Column(name = "annotation", nullable = false, length = 2000)
     private String annotation;
-    @ManyToMany
-    @JoinTable(name = "event_category",
-            joinColumns = {@JoinColumn(name = "event_id", referencedColumnName = "id")},
-            inverseJoinColumns = {@JoinColumn(name = "category_id", referencedColumnName = "id")})
-    private Set<Category> categories;
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private Category category;
     @Column(name = "description", nullable = false, length = 7000)
     private String description;
     @Column(name = "event_date", nullable = false)
     private LocalDateTime eventDate;
-    @ManyToOne
-    @JoinColumn(name = "location_id", nullable = false)
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "location_id", referencedColumnName = "id")
     private Location location;
     @Column(name = "paid")
     private boolean paid;

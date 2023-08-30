@@ -38,6 +38,7 @@ CREATE TABLE IF NOT EXISTS events (
   created TIMESTAMP NOT NULL,
   published TIMESTAMP,
   state VARCHAR(10) NOT NULL,
+  category_id BIGINT REFERENCES categories (id) NOT NULL,
   initiator_id BIGINT REFERENCES app_users (id) ON DELETE CASCADE NOT NULL
 );
 
@@ -48,9 +49,3 @@ CREATE TABLE IF NOT EXISTS participation_requests (
   requester_id BIGINT REFERENCES app_users (id) ON DELETE CASCADE NOT NULL,
   state VARCHAR(10) NOT NULL
 );
-
-CREATE TABLE IF NOT EXISTS event_category (
-  event_id BIGINT,
-  category_id BIGINT,
-  PRIMARY KEY (event_id, category_id)
-)

@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
 import javax.persistence.*;
-import java.util.Set;
 
 @Data
 @AllArgsConstructor
@@ -20,6 +19,4 @@ public class Category {
     private long id;
     @Column(name = "name", nullable = false, length = 50, unique = true)
     private String name;
-    @ManyToMany(mappedBy = "categories")
-    private Set<Event> events;
 }
