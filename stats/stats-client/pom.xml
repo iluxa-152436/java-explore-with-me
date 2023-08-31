@@ -10,6 +10,7 @@
     </parent>
 
     <artifactId>stats-client</artifactId>
+    <description>lib for using stats service</description>
 
     <dependencies>
         <dependency>
