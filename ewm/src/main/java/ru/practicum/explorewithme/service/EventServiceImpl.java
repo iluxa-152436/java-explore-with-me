@@ -7,11 +7,13 @@ import ru.practicum.explorewithme.dto.EventFullDto;
 import ru.practicum.explorewithme.dto.EventShortDto;
 import ru.practicum.explorewithme.entity.Event;
 import ru.practicum.explorewithme.entity.EventState;
+import ru.practicum.explorewithme.exception.NotFoundException;
 import ru.practicum.explorewithme.mapper.EventMapper;
 import ru.practicum.explorewithme.storage.EventStorage;
 import ru.practicum.explorewithme.dto.NewEventRequest;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -41,5 +43,17 @@ public class EventServiceImpl implements EventService {
         return eventStorage.findAll(Page.getPageable(from, size)).stream()
                 .map(eventMapper::toEventShortDto)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public EventFullDto getEventById(long userId, long eventId) {
+        log.debug("Get event user={} event={}", userId, eventId);
+        userService.verifyUserExistence(userId);
+        Optional<Event> result = eventStorage.findById(eventId);
+        if (result.isPresent()) {
+            return eventMapper.toEventFullDto(result.get());
+        } else {
+            throw new NotFoundException("Event with id=" + eventId + " was not found");
+        }
     }
 }

@@ -11,6 +11,7 @@ services:
       - SPRING_DATASOURCE_USERNAME=stats
       - SPRING_DATASOURCE_PASSWORD=stats
       - SPRING_DATASOURCE_DRIVER_CLASS_NAME=org.postgresql.Driver
+      - APP_LOGGING_LEVEL=DEBUG
     depends_on:
       - stats-db
 
@@ -36,6 +37,7 @@ services:
       - SPRING_DATASOURCE_PASSWORD=ewmuser
       - SPRING_DATASOURCE_DRIVER_CLASS_NAME=org.postgresql.Driver
       - STATS_SERVER_URL=http://stats-server:9090
+      - APP_LOGGING_LEVEL=DEBUG
     depends_on:
       - ewm-db
       - stats-server

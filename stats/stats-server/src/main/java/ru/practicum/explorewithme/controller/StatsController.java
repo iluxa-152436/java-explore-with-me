@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.explorewithme.entity.Stats;
 import ru.practicum.explorewithme.service.StatsService;
 
+import javax.servlet.http.HttpServletResponse;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -25,8 +26,13 @@ public class StatsController {
     public List<Stats> getStats(@RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime start,
                                 @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime end,
                                 @RequestParam(defaultValue = "false") boolean unique,
-                                @RequestParam(required = false) Optional<List<String>> uris) {
-        log.info("get parameters: start {}, end {}, unique {}, uris {}", start, end, unique, uris);
-        return service.findStats(start, end, unique, uris);
+                                @RequestParam(required = false) Optional<List<String>> uris,
+                                HttpServletResponse response) {
+        log.debug("get parameters: start {}, end {}, unique {}, uris {}", start, end, unique, uris);
+        List<Stats> result = service.findStats(start, end, unique, uris);
+        if (result == null || result.isEmpty()) {
+            response.setStatus(HttpServletResponse.SC_NO_CONTENT);
+        }
+        return result;
     }
 }

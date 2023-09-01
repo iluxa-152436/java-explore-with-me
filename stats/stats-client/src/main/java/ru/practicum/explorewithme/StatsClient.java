@@ -3,17 +3,19 @@ package ru.practicum.explorewithme;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.*;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 
+import org.springframework.web.util.UriComponentsBuilder;
+
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -24,6 +26,7 @@ public class StatsClient {
     private String statsServerUrl;
     @Value("${spring.application.name}")
     private String appName;
+    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     public void postHit(String uri, String ip) {
         HitPostDto hitPostDto = HitPostDto.builder()
@@ -33,11 +36,13 @@ public class StatsClient {
                 .uri(uri)
                 .build();
         HttpEntity<HitPostDto> request = new HttpEntity<>(hitPostDto, getHttpDefaultHeaders());
+        log.debug("Request in stats-client={}", request);
 
         try {
             ResponseEntity<String> response = restTemplate.postForEntity(statsServerUrl + "/hits",
                     request,
                     String.class);
+            log.debug("Response in stats-client={}", response);
         } catch (RestClientResponseException e) {
             log.debug(e.getMessage());
         }
@@ -47,20 +52,30 @@ public class StatsClient {
                                     LocalDateTime end,
                                     boolean unique,
                                     @Nullable List<String> uris) {
-        Map<String, Object> parameters = new HashMap<>();
-        parameters.put("start", start);
-        parameters.put("end", end);
-        parameters.put("unique", unique);
+        UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(statsServerUrl + "/stats")
+                .queryParam("start", start.format(formatter))
+                .queryParam("end", end.format(formatter))
+                .queryParam("unique", String.valueOf(unique));
         if (uris != null) {
-            parameters.put("uris", uris);
+            String urisParam = uris.stream()
+                    .collect(Collectors.joining(","));
+            builder.queryParam("uris", urisParam);
         }
+        HttpEntity requestEntity = new HttpEntity<>(getHttpDefaultHeaders());
         try {
-            HitListDto hitListDto = restTemplate.getForObject(statsServerUrl + "/stats",
-                    HitListDto.class,
-                    parameters);
-            return hitListDto.getHits();
+            ResponseEntity<List<HitGetDto>> response = restTemplate.exchange(builder.build().toUri(),
+                    HttpMethod.GET,
+                    requestEntity,
+                    new ParameterizedTypeReference<List<HitGetDto>>() {
+                    });
+            if (response.getStatusCode() == HttpStatus.OK) {
+                log.debug(response.getBody().toString());
+                return response.getBody();
+            } else {
+                return Collections.EMPTY_LIST;
+            }
         } catch (RestClientResponseException e) {
-            log.debug(e.getMessage());
+            log.debug("Response exception in StatsClient. Return empty list. " + e.getMessage() + e.getResponseBodyAsString());
             return Collections.EMPTY_LIST;
         }
     }

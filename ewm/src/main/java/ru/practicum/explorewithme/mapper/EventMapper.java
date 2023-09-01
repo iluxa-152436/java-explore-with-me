@@ -18,10 +18,11 @@ import java.util.List;
 @RequiredArgsConstructor
 @Component
 public class EventMapper {
-    private StatsClient statsClient;
+    private final StatsClient statsClient;
     private final CategoryStorage categoryStorage;
     private final UserStorage userStorage;
     private final ModelMapper mapper;
+    private final boolean uniqueIp = true;
 
     public Event toEntity(long userId, NewEventRequest newEventRequest, EventState state) {
         return Event.builder().annotation(newEventRequest.getAnnotation())
@@ -40,7 +41,14 @@ public class EventMapper {
     }
 
     public EventFullDto toEventFullDto(Event event) {
-        return mapper.map(event, EventFullDto.class);
+        EventFullDto result = mapper.map(event, EventFullDto.class);
+        result.setViews(statsClient.getStats(event.getCreated(),
+                        LocalDateTime.now(),
+                        uniqueIp,
+                        List.of("/events/" + event.getId())).stream()
+                .mapToLong(HitGetDto::getHits)
+                .sum());
+        return result;
     }
 
     public EventShortDto toEventShortDto(Event event) {
@@ -54,9 +62,9 @@ public class EventMapper {
                 .paid(event.isPaid())
                 .title(event.getTitle())
                 .views(statsClient.getStats(event.getCreated(),
-                        LocalDateTime.now(),
-                        true,
-                        List.of("/events/" + event.getId())).stream()
+                                LocalDateTime.now(),
+                                uniqueIp,
+                                List.of("/events/" + event.getId())).stream()
                         .mapToLong(HitGetDto::getHits)
                         .sum())
                 .build();

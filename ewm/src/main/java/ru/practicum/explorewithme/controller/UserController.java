@@ -30,4 +30,9 @@ public class UserController {
                                          @RequestParam(defaultValue = "10") int size) {
         return eventService.getEvents(userId, from, size);
     }
+
+    @GetMapping("/events/{eventId}")
+    public EventFullDto getEventById(@PathVariable long userId, @PathVariable long eventId) {
+        return eventService.getEventById(userId, eventId);
+    }
 }
