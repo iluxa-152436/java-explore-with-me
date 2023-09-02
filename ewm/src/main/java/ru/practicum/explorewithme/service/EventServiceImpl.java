@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.explorewithme.dto.EventFullDto;
 import ru.practicum.explorewithme.dto.EventShortDto;
+import ru.practicum.explorewithme.dto.UpdateEventUserRequest;
 import ru.practicum.explorewithme.entity.Event;
 import ru.practicum.explorewithme.entity.EventState;
 import ru.practicum.explorewithme.exception.NotFoundException;
@@ -55,5 +56,18 @@ public class EventServiceImpl implements EventService {
         } else {
             throw new NotFoundException("Event with id=" + eventId + " was not found");
         }
+    }
+
+    @Override
+    public EventFullDto updateEvent(long userId, long eventId, UpdateEventUserRequest updateEventUserRequest) {
+        log.debug("Add new parameters of new event={} from userId={}", updateEventUserRequest, userId);
+        userService.verifyUserExistence(userId);
+        Optional<Event> result = eventStorage.findByIdAndInitiatorId(eventId, userId);
+        if (result.isPresent()) {
+            return eventMapper.toEventFullDto(eventStorage.save(eventMapper.toEntity(result.get(), updateEventUserRequest)));
+        } else {
+            throw new NotFoundException("Event with id=" + eventId + " was not found");
+        }
+
     }
 }

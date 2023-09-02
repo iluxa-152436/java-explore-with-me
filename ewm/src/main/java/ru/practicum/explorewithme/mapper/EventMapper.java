@@ -14,6 +14,7 @@ import ru.practicum.explorewithme.storage.UserStorage;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Component
@@ -68,5 +69,19 @@ public class EventMapper {
                         .mapToLong(HitGetDto::getHits)
                         .sum())
                 .build();
+    }
+
+    public Event toEntity(Event event, UpdateEventUserRequest updateEventUserRequest) {
+        Optional.ofNullable(updateEventUserRequest.getEventDate()).ifPresent(event::setEventDate);
+        Optional.ofNullable(updateEventUserRequest.getRequestModeration()).ifPresent(event::setRequestModeration);
+        Optional.ofNullable(updateEventUserRequest.getAnnotation()).ifPresent(event::setAnnotation);
+        Optional.ofNullable(updateEventUserRequest.getDescription()).ifPresent(event::setDescription);
+        //TODO Location
+        Optional.of(updateEventUserRequest.getParticipantLimit()).ifPresent(event::setParticipantLimit);
+        //TODO Category
+        Optional.ofNullable(updateEventUserRequest.getTitle()).ifPresent(event::setTitle);
+        //TODO StateAction
+        Optional.ofNullable(updateEventUserRequest.getPaid()).ifPresent(event::setPaid);
+        return event;
     }
 }

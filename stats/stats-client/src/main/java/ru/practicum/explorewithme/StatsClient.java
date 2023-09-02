@@ -57,9 +57,7 @@ public class StatsClient {
                 .queryParam("end", end.format(formatter))
                 .queryParam("unique", String.valueOf(unique));
         if (uris != null) {
-            String urisParam = uris.stream()
-                    .collect(Collectors.joining(","));
-            builder.queryParam("uris", urisParam);
+            builder.queryParam("uris", uris.stream().collect(Collectors.joining(",")));
         }
         HttpEntity requestEntity = new HttpEntity<>(getHttpDefaultHeaders());
         try {
@@ -68,10 +66,10 @@ public class StatsClient {
                     requestEntity,
                     new ParameterizedTypeReference<List<HitGetDto>>() {
                     });
-            if (response.getStatusCode() == HttpStatus.OK) {
+            if (response.getStatusCode() == HttpStatus.OK) { //обработка, только если было тело ответа
                 log.debug(response.getBody().toString());
                 return response.getBody();
-            } else {
+            } else { //если ответ без тела - возвращаем пустой список
                 return Collections.EMPTY_LIST;
             }
         } catch (RestClientResponseException e) {

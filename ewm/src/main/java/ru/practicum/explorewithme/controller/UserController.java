@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.explorewithme.dto.EventFullDto;
 import ru.practicum.explorewithme.dto.EventShortDto;
 import ru.practicum.explorewithme.dto.NewEventRequest;
+import ru.practicum.explorewithme.dto.UpdateEventUserRequest;
 import ru.practicum.explorewithme.service.EventService;
 
 import javax.validation.Valid;
@@ -34,5 +35,12 @@ public class UserController {
     @GetMapping("/events/{eventId}")
     public EventFullDto getEventById(@PathVariable long userId, @PathVariable long eventId) {
         return eventService.getEventById(userId, eventId);
+    }
+
+    @PatchMapping("/events/{eventId}")
+    public EventFullDto patchEvent(@PathVariable long userId,
+                                   @PathVariable long eventId,
+                                   @RequestBody @Valid UpdateEventUserRequest updateEventUserRequest) {
+        return eventService.updateEvent(userId, eventId, updateEventUserRequest);
     }
 }
