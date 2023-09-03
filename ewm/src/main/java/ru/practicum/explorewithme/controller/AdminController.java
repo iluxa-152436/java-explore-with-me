@@ -1,16 +1,17 @@
 package ru.practicum.explorewithme.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.explorewithme.dto.*;
+import ru.practicum.explorewithme.entity.EventState;
 import ru.practicum.explorewithme.service.CategoryService;
-import ru.practicum.explorewithme.dto.CategoryDto;
-import ru.practicum.explorewithme.dto.NewCategoryRequest;
-import ru.practicum.explorewithme.dto.NewUserRequest;
-import ru.practicum.explorewithme.dto.UserDto;
+import ru.practicum.explorewithme.service.EventService;
 import ru.practicum.explorewithme.service.UserService;
 
 import javax.validation.Valid;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,6 +21,7 @@ import java.util.Optional;
 public class AdminController {
     private final UserService userService;
     private final CategoryService categoryService;
+    private final EventService eventService;
 
     @PostMapping("/users")
     @ResponseStatus(HttpStatus.CREATED)
@@ -56,5 +58,16 @@ public class AdminController {
     public CategoryDto patchCategory(@RequestBody @Valid NewCategoryRequest newCategoryRequest,
                                      @PathVariable long id) {
         return categoryService.updateCategory(id, newCategoryRequest);
+    }
+
+    @GetMapping("/events")
+    public List<EventFullDto> getEvents(@RequestParam Optional<List<Long>> users,
+                                        @RequestParam Optional<List<EventState>> states,
+                                        @RequestParam Optional<List<Long>> categories,
+                                        @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Optional<LocalDateTime> rangeStart,
+                                        @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Optional<LocalDateTime> rangeEnd,
+                                        @RequestParam(defaultValue = "0") int from,
+                                        @RequestParam(defaultValue = "10") int size) {
+        return eventService.getEvents(users, states, categories, rangeStart, rangeEnd, from, size);
     }
 }

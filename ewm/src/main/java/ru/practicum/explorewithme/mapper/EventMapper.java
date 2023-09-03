@@ -2,6 +2,7 @@ package ru.practicum.explorewithme.mapper;
 
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 import ru.practicum.explorewithme.HitGetDto;
 import ru.practicum.explorewithme.StatsClient;
@@ -17,6 +18,7 @@ import ru.practicum.explorewithme.storage.UserStorage;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Component
@@ -107,5 +109,11 @@ public class EventMapper {
                 }
                 break;
         }
+    }
+
+    public List<EventFullDto> eventFullDtoList(Page<Event> eventPage) {
+        return eventPage.stream()
+                .map(this::toEventFullDto)
+                .collect(Collectors.toList());
     }
 }
