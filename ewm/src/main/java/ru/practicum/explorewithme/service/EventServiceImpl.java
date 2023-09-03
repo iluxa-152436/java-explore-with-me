@@ -68,6 +68,5 @@ public class EventServiceImpl implements EventService {
         } else {
             throw new NotFoundException("Event with id=" + eventId + " was not found");
         }
-
     }
 }

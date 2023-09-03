@@ -8,6 +8,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.practicum.explorewithme.exception.ApiErrorMessage;
+import ru.practicum.explorewithme.exception.IllegalEventStateException;
 import ru.practicum.explorewithme.exception.NotFoundException;
 
 @Slf4j
@@ -29,5 +30,11 @@ public class ExceptionHandlerController {
     public ResponseEntity<ApiErrorMessage> handleConstraintViolationException(Exception exception) {
         log.debug("Получен код 409 Conflict [{}]", exception.getMessage());
         return ResponseEntity.status(HttpStatus.CONFLICT).body(new ApiErrorMessage("Ошибка валидации"));
+    }
+
+    @ExceptionHandler(value = {IllegalEventStateException.class})
+    public ResponseEntity<ApiErrorMessage> handleStateException(Exception exception) {
+        log.debug("Получен код 409 Conflict [{}]", exception.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(new ApiErrorMessage(exception.getMessage()));
     }
 }

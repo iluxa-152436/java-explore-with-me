@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class UpdateEventUserRequest {
     private String annotation;
-    private long category;
+    private Long category;
     private String description;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @EventDateConstraint

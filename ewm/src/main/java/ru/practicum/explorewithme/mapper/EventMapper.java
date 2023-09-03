@@ -9,6 +9,8 @@ import ru.practicum.explorewithme.dto.*;
 import ru.practicum.explorewithme.entity.Event;
 import ru.practicum.explorewithme.entity.EventState;
 import ru.practicum.explorewithme.entity.Location;
+import ru.practicum.explorewithme.entity.StateAction;
+import ru.practicum.explorewithme.exception.IllegalEventStateException;
 import ru.practicum.explorewithme.storage.CategoryStorage;
 import ru.practicum.explorewithme.storage.UserStorage;
 
@@ -76,12 +78,34 @@ public class EventMapper {
         Optional.ofNullable(updateEventUserRequest.getRequestModeration()).ifPresent(event::setRequestModeration);
         Optional.ofNullable(updateEventUserRequest.getAnnotation()).ifPresent(event::setAnnotation);
         Optional.ofNullable(updateEventUserRequest.getDescription()).ifPresent(event::setDescription);
-        //TODO Location
+        Optional.ofNullable(updateEventUserRequest.getLocation())
+                .ifPresent(location -> event.setLocation(mapper.map(location, Location.class)));
         Optional.of(updateEventUserRequest.getParticipantLimit()).ifPresent(event::setParticipantLimit);
-        //TODO Category
+        Optional.ofNullable(updateEventUserRequest.getCategory())
+                .ifPresent(categoryId -> event.setCategory(categoryStorage.findById(categoryId).get()));
         Optional.ofNullable(updateEventUserRequest.getTitle()).ifPresent(event::setTitle);
-        //TODO StateAction
+        Optional.ofNullable(updateEventUserRequest.getStateAction())
+                .ifPresent(stateAction -> eventSetState(event, stateAction));
         Optional.ofNullable(updateEventUserRequest.getPaid()).ifPresent(event::setPaid);
         return event;
+    }
+
+    private void eventSetState(Event event, StateAction stateAction) {
+        switch (stateAction) {
+            case CANCEL_REVIEW:
+                if (event.getState().equals(EventState.PENDING) || (event.getState().equals(EventState.CANCELED))) {
+                    event.setState(EventState.CANCELED);
+                } else {
+                    throw new IllegalEventStateException("Статус не может быть изменен");
+                }
+                break;
+            case SEND_TO_REVIEW:
+                if (event.getState().equals(EventState.CANCELED)) {
+                    event.setState(EventState.PENDING);
+                } else {
+                    throw new IllegalEventStateException("Статус не может быть изменен");
+                }
+                break;
+        }
     }
 }
