@@ -9,6 +9,10 @@ import ru.practicum.explorewithme.entity.Category;
 import ru.practicum.explorewithme.exception.NotFoundException;
 import ru.practicum.explorewithme.storage.CategoryStorage;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 public class CategoryServiceImpl implements CategoryService {
@@ -38,6 +42,23 @@ public class CategoryServiceImpl implements CategoryService {
             return mapper.map(storage.save(oldCategory), CategoryDto.class);
         } else {
             throw new NotFoundException("Category with id=" + id + " was not found");
+        }
+    }
+
+    @Override
+    public List<CategoryDto> getCategories(int from, int size) {
+        return storage.findAll(Page.getPageable(from, size)).stream()
+                .map(cat -> mapper.map(cat, CategoryDto.class))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public CategoryDto getCategoryById(long categoryId) {
+        Optional<Category> category = storage.findById(categoryId);
+        if (category.isPresent()) {
+            return mapper.map(category.get(), CategoryDto.class);
+        } else {
+            throw new NotFoundException("Category with id=" + categoryId + " was not found");
         }
     }
 }
