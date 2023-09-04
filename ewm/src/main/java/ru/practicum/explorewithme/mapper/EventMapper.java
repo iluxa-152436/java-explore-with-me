@@ -10,7 +10,7 @@ import ru.practicum.explorewithme.dto.*;
 import ru.practicum.explorewithme.entity.Event;
 import ru.practicum.explorewithme.entity.EventState;
 import ru.practicum.explorewithme.entity.Location;
-import ru.practicum.explorewithme.entity.StateAction;
+import ru.practicum.explorewithme.dto.StateActionUser;
 import ru.practicum.explorewithme.exception.IllegalEventStateException;
 import ru.practicum.explorewithme.storage.CategoryStorage;
 import ru.practicum.explorewithme.storage.UserStorage;
@@ -47,6 +47,8 @@ public class EventMapper {
 
     public EventFullDto toEventFullDto(Event event) {
         EventFullDto result = mapper.map(event, EventFullDto.class);
+        result.setCreatedOn(event.getCreated());
+        result.setPublishedOn(event.getPublished());
         result.setViews(statsClient.getStats(event.getCreated(),
                         LocalDateTime.now(),
                         uniqueIp,
@@ -87,12 +89,12 @@ public class EventMapper {
                 .ifPresent(categoryId -> event.setCategory(categoryStorage.findById(categoryId).get()));
         Optional.ofNullable(updateEventUserRequest.getTitle()).ifPresent(event::setTitle);
         Optional.ofNullable(updateEventUserRequest.getStateAction())
-                .ifPresent(stateAction -> eventSetState(event, stateAction));
+                .ifPresent(stateAction -> eventSetUserState(event, stateAction));
         Optional.ofNullable(updateEventUserRequest.getPaid()).ifPresent(event::setPaid);
         return event;
     }
 
-    private void eventSetState(Event event, StateAction stateAction) {
+    private void eventSetUserState(Event event, StateActionUser stateAction) {
         switch (stateAction) {
             case CANCEL_REVIEW:
                 if (event.getState().equals(EventState.PENDING) || (event.getState().equals(EventState.CANCELED))) {
@@ -115,5 +117,42 @@ public class EventMapper {
         return eventPage.stream()
                 .map(this::toEventFullDto)
                 .collect(Collectors.toList());
+    }
+
+    public Event toEntity(Event event, UpdateEventAdminRequest updateEventAdminRequest) {
+        Optional.ofNullable(updateEventAdminRequest.getEventDate()).ifPresent(event::setEventDate);
+        Optional.ofNullable(updateEventAdminRequest.getRequestModeration()).ifPresent(event::setRequestModeration);
+        Optional.ofNullable(updateEventAdminRequest.getAnnotation()).ifPresent(event::setAnnotation);
+        Optional.ofNullable(updateEventAdminRequest.getDescription()).ifPresent(event::setDescription);
+        Optional.ofNullable(updateEventAdminRequest.getLocation())
+                .ifPresent(location -> event.setLocation(mapper.map(location, Location.class)));
+        Optional.of(updateEventAdminRequest.getParticipantLimit()).ifPresent(event::setParticipantLimit);
+        Optional.ofNullable(updateEventAdminRequest.getCategory())
+                .ifPresent(categoryId -> event.setCategory(categoryStorage.findById(categoryId).get()));
+        Optional.ofNullable(updateEventAdminRequest.getTitle()).ifPresent(event::setTitle);
+        Optional.ofNullable(updateEventAdminRequest.getStateAction())
+                .ifPresent(stateAction -> eventSetAdminState(event, stateAction));
+        Optional.ofNullable(updateEventAdminRequest.getPaid()).ifPresent(event::setPaid);
+        return event;
+    }
+
+    private void eventSetAdminState(Event event, StateActionAdmin stateAction) {
+        switch (stateAction) {
+            case PUBLISH_EVENT:
+                if (event.getState().equals(EventState.PENDING)) {
+                    event.setState(EventState.PUBLISHED);
+                    event.setPublished(LocalDateTime.now());
+                } else {
+                    throw new IllegalEventStateException("Статус не может быть изменен");
+                }
+                break;
+            case REJECT_EVENT:
+                if (event.getState().equals(EventState.PENDING)) {
+                    event.setState(EventState.CANCELED);
+                } else {
+                    throw new IllegalEventStateException("Статус не может быть изменен");
+                }
+                break;
+        }
     }
 }

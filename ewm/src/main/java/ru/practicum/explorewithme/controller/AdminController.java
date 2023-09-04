@@ -70,4 +70,12 @@ public class AdminController {
                                         @RequestParam(defaultValue = "10") int size) {
         return eventService.getEvents(users, states, categories, rangeStart, rangeEnd, from, size);
     }
+
+    @PatchMapping("/events/{eventId}")
+    public EventFullDto patchEvent(@PathVariable long eventId,
+                                   @RequestBody @Valid UpdateEventAdminRequest updateEventAdminRequest) {
+        return eventService.updateEvent(eventId, updateEventAdminRequest);
+
+    }
+
 }

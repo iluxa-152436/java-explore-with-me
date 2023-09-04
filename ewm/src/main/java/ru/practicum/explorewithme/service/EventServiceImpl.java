@@ -4,15 +4,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-import ru.practicum.explorewithme.dto.EventFullDto;
-import ru.practicum.explorewithme.dto.EventShortDto;
-import ru.practicum.explorewithme.dto.UpdateEventUserRequest;
+import ru.practicum.explorewithme.dto.*;
 import ru.practicum.explorewithme.entity.Event;
 import ru.practicum.explorewithme.entity.EventState;
 import ru.practicum.explorewithme.exception.NotFoundException;
 import ru.practicum.explorewithme.mapper.EventMapper;
 import ru.practicum.explorewithme.storage.EventStorage;
-import ru.practicum.explorewithme.dto.NewEventRequest;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -62,7 +59,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public EventFullDto updateEvent(long userId, long eventId, UpdateEventUserRequest updateEventUserRequest) {
-        log.debug("Add new parameters of new event={} from userId={}", updateEventUserRequest, userId);
+        log.debug("Update event, parameters of new event={} from userId={}", updateEventUserRequest, userId);
         userService.verifyUserExistence(userId);
         Optional<Event> result = eventStorage.findByIdAndInitiatorId(eventId, userId);
         if (result.isPresent()) {
@@ -90,6 +87,24 @@ public class EventServiceImpl implements EventService {
                 rangeEnd,
                 filter,
                 pageRequest));
+    }
+
+    @Override
+    public EventFullDto updateEvent(long eventId, UpdateEventAdminRequest updateEventAdminRequest) {
+        log.debug("Update event by admin, parameters of new event={} eventId={}", updateEventAdminRequest, eventId);
+        Optional<Event> event = eventStorage.findById(eventId);
+        if (event.isPresent()) {
+            EventFullDto result = eventMapper.toEventFullDto(eventStorage.save(eventMapper.toEntity(event.get(),
+                    updateEventAdminRequest)));
+            if (result.getPublishedOn() != null && result.getEventDate().isAfter(result.getPublishedOn().plusHours(1))) {
+                return result;
+            } else {
+                throw new IllegalArgumentException("The publication date must be no later than an hour before the event date");
+            }
+
+        } else {
+            throw new NotFoundException("Event with id=" + eventId + " was not found");
+        }
     }
 
     private org.springframework.data.domain.Page<Event> getEventsPage(Optional<List<Long>> users,

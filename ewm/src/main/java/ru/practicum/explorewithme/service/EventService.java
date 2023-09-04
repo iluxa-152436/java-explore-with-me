@@ -1,9 +1,6 @@
 package ru.practicum.explorewithme.service;
 
-import ru.practicum.explorewithme.dto.EventFullDto;
-import ru.practicum.explorewithme.dto.EventShortDto;
-import ru.practicum.explorewithme.dto.NewEventRequest;
-import ru.practicum.explorewithme.dto.UpdateEventUserRequest;
+import ru.practicum.explorewithme.dto.*;
 import ru.practicum.explorewithme.entity.EventState;
 
 import java.time.LocalDateTime;
@@ -26,4 +23,6 @@ public interface EventService {
                                  Optional<LocalDateTime> rangeEnd,
                                  int from,
                                  int size);
+
+    EventFullDto updateEvent(long eventId, UpdateEventAdminRequest updateEventAdminRequest);
 }
