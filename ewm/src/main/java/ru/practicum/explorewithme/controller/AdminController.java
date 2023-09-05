@@ -15,6 +15,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import static ru.practicum.explorewithme.constant.DefaultValue.*;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/admin")
@@ -31,8 +33,8 @@ public class AdminController {
 
     @GetMapping("/users")
     public List<UserDto> getUsers(@RequestParam Optional<List<Long>> ids,
-                                  @RequestParam(defaultValue = "0") int from,
-                                  @RequestParam(defaultValue = "10") int size) {
+                                  @RequestParam(defaultValue = FROM) int from,
+                                  @RequestParam(defaultValue = SIZE) int size) {
         return userService.getUsers(ids, from, size);
     }
 
@@ -64,10 +66,10 @@ public class AdminController {
     public List<EventFullDto> getEvents(@RequestParam Optional<List<Long>> users,
                                         @RequestParam Optional<List<EventState>> states,
                                         @RequestParam Optional<List<Long>> categories,
-                                        @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Optional<LocalDateTime> rangeStart,
-                                        @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Optional<LocalDateTime> rangeEnd,
-                                        @RequestParam(defaultValue = "0") int from,
-                                        @RequestParam(defaultValue = "10") int size) {
+                                        @RequestParam @DateTimeFormat(pattern = DATE_TIME_PATTERN) Optional<LocalDateTime> rangeStart,
+                                        @RequestParam @DateTimeFormat(pattern = DATE_TIME_PATTERN) Optional<LocalDateTime> rangeEnd,
+                                        @RequestParam(defaultValue = FROM) int from,
+                                        @RequestParam(defaultValue = SIZE) int size) {
         return eventService.getEvents(users, states, categories, rangeStart, rangeEnd, from, size);
     }
 

@@ -16,6 +16,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import static ru.practicum.explorewithme.constant.DefaultValue.*;
+
 @RequiredArgsConstructor
 @RestController
 public class PublicController {
@@ -23,8 +25,8 @@ public class PublicController {
     private final EventService eventService;
 
     @GetMapping("/categories")
-    public List<CategoryDto> getCategories(@RequestParam(defaultValue = "0") int from,
-                                           @RequestParam(defaultValue = "10") int size) {
+    public List<CategoryDto> getCategories(@RequestParam(defaultValue = FROM) int from,
+                                           @RequestParam(defaultValue = SIZE) int size) {
         return categoryService.getCategories(from, size);
     }
 
@@ -37,11 +39,11 @@ public class PublicController {
     public List<EventShortDto> getEvents(@RequestParam Optional<String> text,
                                         @RequestParam Optional<List<Long>> categories,
                                         @RequestParam Optional<Boolean> paid,
-                                        @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Optional<LocalDateTime> rangeStart,
-                                        @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Optional<LocalDateTime> rangeEnd,
+                                        @RequestParam @DateTimeFormat(pattern = DATE_TIME_PATTERN) Optional<LocalDateTime> rangeStart,
+                                        @RequestParam @DateTimeFormat(pattern = DATE_TIME_PATTERN) Optional<LocalDateTime> rangeEnd,
                                         @RequestParam(defaultValue = "false") boolean onlyAvailable,
-                                        @RequestParam(defaultValue = "0") int from,
-                                        @RequestParam(defaultValue = "10") int size,
+                                        @RequestParam(defaultValue = FROM) int from,
+                                        @RequestParam(defaultValue = SIZE) int size,
                                         @RequestParam(defaultValue = "EVENT_DATE") TypeOfSorting sort) {
         return eventService.getEvents(text, categories, paid, rangeStart, rangeEnd, onlyAvailable, from, size, sort);
     }

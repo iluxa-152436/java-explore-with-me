@@ -12,6 +12,9 @@ import ru.practicum.explorewithme.service.EventService;
 import javax.validation.Valid;
 import java.util.List;
 
+import static ru.practicum.explorewithme.constant.DefaultValue.FROM;
+import static ru.practicum.explorewithme.constant.DefaultValue.SIZE;
+
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/users/{userId}")
@@ -27,8 +30,8 @@ public class UserController {
 
     @GetMapping("/events")
     public List<EventShortDto> getEvents(@PathVariable long userId,
-                                         @RequestParam(defaultValue = "0") int from,
-                                         @RequestParam(defaultValue = "10") int size) {
+                                         @RequestParam(defaultValue = FROM) int from,
+                                         @RequestParam(defaultValue = SIZE) int size) {
         return eventService.getEvents(userId, from, size);
     }
 
