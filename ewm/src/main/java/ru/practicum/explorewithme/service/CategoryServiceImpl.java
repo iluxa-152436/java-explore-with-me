@@ -47,7 +47,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public List<CategoryDto> getCategories(int from, int size) {
-        return storage.findAll(Page.getPageable(from, size)).stream()
+        return storage.findAll(Page.getPageable(from, size, Optional.empty())).stream()
                 .map(cat -> mapper.map(cat, CategoryDto.class))
                 .collect(Collectors.toList());
     }

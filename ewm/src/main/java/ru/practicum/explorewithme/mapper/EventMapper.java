@@ -89,12 +89,12 @@ public class EventMapper {
                 .ifPresent(categoryId -> event.setCategory(categoryStorage.findById(categoryId).get()));
         Optional.ofNullable(updateEventUserRequest.getTitle()).ifPresent(event::setTitle);
         Optional.ofNullable(updateEventUserRequest.getStateAction())
-                .ifPresent(stateAction -> eventSetUserState(event, stateAction));
+                .ifPresent(stateAction -> setUserState(event, stateAction));
         Optional.ofNullable(updateEventUserRequest.getPaid()).ifPresent(event::setPaid);
         return event;
     }
 
-    private void eventSetUserState(Event event, StateActionUser stateAction) {
+    private void setUserState(Event event, StateActionUser stateAction) {
         switch (stateAction) {
             case CANCEL_REVIEW:
                 if (event.getState().equals(EventState.PENDING) || (event.getState().equals(EventState.CANCELED))) {
@@ -113,9 +113,15 @@ public class EventMapper {
         }
     }
 
-    public List<EventFullDto> eventFullDtoList(Page<Event> eventPage) {
+    public List<EventFullDto> toEventFullDtoList(Page<Event> eventPage) {
         return eventPage.stream()
                 .map(this::toEventFullDto)
+                .collect(Collectors.toList());
+    }
+
+    public List<EventShortDto> toEventShortDtoList(Page<Event> eventPage) {
+        return eventPage.stream()
+                .map(this::toEventShortDto)
                 .collect(Collectors.toList());
     }
 

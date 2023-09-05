@@ -27,11 +27,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<UserDto> getUsers(Optional<List<Long>> userIds, int from, int size) {
         if (userIds.isPresent()) {
-            return storage.findByIdIn(userIds.get(), Page.getPageable(from, size)).stream()
+            return storage.findByIdIn(userIds.get(), Page.getPageable(from, size, Optional.empty())).stream()
                     .map(u -> mapper.map(u, UserDto.class))
                     .collect(Collectors.toList());
         } else {
-            return storage.findAll(Page.getPageable(from, size)).stream()
+            return storage.findAll(Page.getPageable(from, size, Optional.empty())).stream()
                     .map(u-> mapper.map(u, UserDto.class))
                     .collect(Collectors.toList());
         }

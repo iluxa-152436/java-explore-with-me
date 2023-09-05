@@ -25,4 +25,14 @@ public interface EventService {
                                  int size);
 
     EventFullDto updateEvent(long eventId, UpdateEventAdminRequest updateEventAdminRequest);
+
+    List<EventShortDto> getEvents(Optional<String> text,
+                                  Optional<List<Long>> categories,
+                                  Optional<Boolean> paid,
+                                  Optional<LocalDateTime> rangeStart,
+                                  Optional<LocalDateTime> rangeEnd,
+                                  boolean onlyAvailable,
+                                  int from,
+                                  int size,
+                                  TypeOfSorting sort);
 }

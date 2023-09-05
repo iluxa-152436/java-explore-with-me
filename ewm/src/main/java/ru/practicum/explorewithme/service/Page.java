@@ -1,12 +1,26 @@
 package ru.practicum.explorewithme.service;
 
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+
+import java.util.Optional;
 
 public class Page {
-    public static PageRequest getPageable(int from, int size) {
+    public static PageRequest getPageable(int from, int size, Optional<TypeOfSorting> sort) {
         if (from < 0 || size < 1) {
             throw new IllegalArgumentException("From and size must be valid");
         }
-        return PageRequest.of(from / size, size);
+        if (sort.isEmpty()) {
+            return PageRequest.of(from / size, size);
+        } else {
+            switch (sort.get()) {
+                case VIEWS:
+                    return PageRequest.of(from / size, size);
+                case EVENT_DATE:
+                    return PageRequest.of(from / size, size, Sort.by("eventDate").ascending());
+                default:
+                    throw new IllegalArgumentException();
+            }
+        }
     }
 }

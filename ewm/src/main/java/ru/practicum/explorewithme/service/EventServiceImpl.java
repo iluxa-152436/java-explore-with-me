@@ -40,7 +40,7 @@ public class EventServiceImpl implements EventService {
     public List<EventShortDto> getEvents(long userId, int from, int size) {
         log.debug("Get events from={} size={}", from, size);
         userService.verifyUserExistence(userId);
-        return eventStorage.findAll(Page.getPageable(from, size)).stream()
+        return eventStorage.findAll(Page.getPageable(from, size, Optional.empty())).stream()
                 .map(eventMapper::toEventShortDto)
                 .collect(Collectors.toList());
     }
@@ -78,15 +78,57 @@ public class EventServiceImpl implements EventService {
                                         Optional<LocalDateTime> rangeEnd,
                                         int from,
                                         int size) {
-        EventFilter filter = determineFilter(users, states, categories, rangeStart, rangeEnd);
-        PageRequest pageRequest = Page.getPageable(from, size);
-        return eventMapper.eventFullDtoList(getEventsPage(users,
+        EventAdminFilter filter = setAdminFilter(users, states, categories, rangeStart, rangeEnd);
+        PageRequest pageRequest = Page.getPageable(from, size, Optional.empty());
+        return eventMapper.toEventFullDtoList(getEventsPage(users,
                 states,
                 categories,
                 rangeStart,
                 rangeEnd,
                 filter,
                 pageRequest));
+    }
+
+    @Override
+    public List<EventShortDto> getEvents(Optional<String> text,
+                                         Optional<List<Long>> categories,
+                                         Optional<Boolean> paid,
+                                         Optional<LocalDateTime> rangeStart,
+                                         Optional<LocalDateTime> rangeEnd,
+                                         boolean onlyAvailable,
+                                         int from,
+                                         int size,
+                                         TypeOfSorting sort) {
+        //EventPublicFilter filter = setPublicFilter(text, categories, paid, rangeStart, rangeEnd, onlyAvailable);
+        PageRequest pageRequest = Page.getPageable(from, size, Optional.of(sort));
+
+        return eventMapper.toEventShortDtoList(getPublicEventsPage(text,
+                categories,
+                paid,
+                rangeStart,
+                rangeEnd,
+                onlyAvailable,
+                pageRequest));
+    }
+
+    private org.springframework.data.domain.Page<Event> getPublicEventsPage(Optional<String> text,
+                                                                            Optional<List<Long>> categories,
+                                                                            Optional<Boolean> paid,
+                                                                            Optional<LocalDateTime> rangeStart,
+                                                                            Optional<LocalDateTime> rangeEnd,
+                                                                            boolean onlyAvailable,
+                                                                            PageRequest pageRequest) {
+        if (rangeStart.isEmpty()) {
+            rangeStart = Optional.of(LocalDateTime.now());
+        }
+        return eventStorage.findAllForPublicWithFilters(rangeEnd.orElse(null),
+                rangeStart.orElse(null),
+                paid.orElse(null),
+                categories.orElse(null),
+                //TODO onlyAvailable,
+                text.orElse(null),
+                EventState.PUBLISHED.name(),
+                pageRequest);
     }
 
     @Override
@@ -112,7 +154,7 @@ public class EventServiceImpl implements EventService {
                                                                       Optional<List<Long>> categories,
                                                                       Optional<LocalDateTime> rangeStart,
                                                                       Optional<LocalDateTime> rangeEnd,
-                                                                      EventFilter filter,
+                                                                      EventAdminFilter filter,
                                                                       PageRequest pageRequest) {
         switch (filter) {
             case U:
@@ -181,11 +223,11 @@ public class EventServiceImpl implements EventService {
         }
     }
 
-    private EventFilter determineFilter(Optional<List<Long>> users,
-                                        Optional<List<EventState>> states,
-                                        Optional<List<Long>> categories,
-                                        Optional<LocalDateTime> rangeStart,
-                                        Optional<LocalDateTime> rangeEnd) {
+    private EventAdminFilter setAdminFilter(Optional<List<Long>> users,
+                                            Optional<List<EventState>> states,
+                                            Optional<List<Long>> categories,
+                                            Optional<LocalDateTime> rangeStart,
+                                            Optional<LocalDateTime> rangeEnd) {
         StringBuilder res = new StringBuilder();
         if (users.isPresent()) {
             res.append("U");
@@ -202,7 +244,7 @@ public class EventServiceImpl implements EventService {
         if (users.isEmpty() && states.isEmpty() && categories.isEmpty() && rangeStart.isEmpty() && rangeEnd.isEmpty()) {
             res.append("EMPTY");
         }
-        log.debug("Final filter combination={}", EventFilter.valueOf(res.toString()));
-        return EventFilter.valueOf(res.toString());
+        log.debug("Final admin event filter combination={}", EventAdminFilter.valueOf(res.toString()));
+        return EventAdminFilter.valueOf(res.toString());
     }
 }

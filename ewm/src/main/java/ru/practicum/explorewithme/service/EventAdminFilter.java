@@ -1,6 +1,6 @@
 package ru.practicum.explorewithme.service;
 
-public enum EventFilter {
+public enum EventAdminFilter {
     U,
     S,
     C,
