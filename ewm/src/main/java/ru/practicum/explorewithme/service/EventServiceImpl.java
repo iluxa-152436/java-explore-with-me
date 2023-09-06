@@ -97,7 +97,6 @@ public class EventServiceImpl implements EventService {
                                          int size,
                                          TypeOfSorting sort) {
         PageRequest pageRequest = Page.getPageable(from, size, Optional.of(sort));
-
         return eventMapper.toEventShortDtoList(getPublicEventsPage(text,
                 categories,
                 paid,
@@ -145,7 +144,12 @@ public class EventServiceImpl implements EventService {
                                                                             Optional<LocalDateTime> rangeEnd,
                                                                             boolean onlyAvailable,
                                                                             PageRequest pageRequest) {
-        if (rangeStart.isEmpty()) {
+        if (rangeStart.isPresent() && rangeEnd.isPresent()) {
+            if (rangeStart.get().isAfter(rangeEnd.get())) {
+                throw new IllegalArgumentException("range start and range end must be valid");
+            }
+        }
+        if (rangeStart.isEmpty() && rangeEnd.isEmpty()) {
             rangeStart = Optional.of(LocalDateTime.now());
         }
         return eventStorage.findAllForPublicWithFilters(rangeEnd.orElse(null),

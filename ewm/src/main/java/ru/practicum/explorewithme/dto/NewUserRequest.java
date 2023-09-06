@@ -3,16 +3,19 @@ package ru.practicum.explorewithme.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.validator.constraints.Length;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Pattern;
+import javax.validation.constraints.*;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class NewUserRequest {
-    @Pattern(regexp = "^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$")
+    @NotNull
+    @Email
+    @Length(min = 6, max = 254)
     private String email;
-    @NotBlank(message = "Field: name. Error: must not be blank.")
+    @NotBlank
+    @Length(min = 2, max = 250)
     private String name;
 }
