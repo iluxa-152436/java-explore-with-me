@@ -39,15 +39,25 @@ public class PublicController {
 
     @GetMapping("/events")
     public List<EventShortDto> getEvents(@RequestParam Optional<String> text,
-                                        @RequestParam Optional<List<Long>> categories,
-                                        @RequestParam Optional<Boolean> paid,
-                                        @RequestParam @DateTimeFormat(pattern = DATE_TIME_PATTERN) Optional<LocalDateTime> rangeStart,
-                                        @RequestParam @DateTimeFormat(pattern = DATE_TIME_PATTERN) Optional<LocalDateTime> rangeEnd,
-                                        @RequestParam(defaultValue = "false") boolean onlyAvailable,
-                                        @RequestParam(defaultValue = FROM) int from,
-                                        @RequestParam(defaultValue = SIZE) int size,
-                                        @RequestParam(defaultValue = "EVENT_DATE") TypeOfSorting sort) {
-        return eventService.getEvents(text, categories, paid, rangeStart, rangeEnd, onlyAvailable, from, size, sort);
+                                         @RequestParam Optional<List<Long>> categories,
+                                         @RequestParam Optional<Boolean> paid,
+                                         @RequestParam @DateTimeFormat(pattern = DATE_TIME_PATTERN) Optional<LocalDateTime> rangeStart,
+                                         @RequestParam @DateTimeFormat(pattern = DATE_TIME_PATTERN) Optional<LocalDateTime> rangeEnd,
+                                         @RequestParam(defaultValue = "false") boolean onlyAvailable,
+                                         @RequestParam(defaultValue = FROM) int from,
+                                         @RequestParam(defaultValue = SIZE) int size,
+                                         @RequestParam(defaultValue = "EVENT_DATE") TypeOfSorting sort,
+                                         HttpServletRequest request) {
+        return eventService.getEvents(text,
+                categories,
+                paid,
+                rangeStart,
+                rangeEnd,
+                onlyAvailable,
+                from,
+                size,
+                sort,
+                request.getRemoteAddr());
     }
 
     @GetMapping("/events/{eventId}")

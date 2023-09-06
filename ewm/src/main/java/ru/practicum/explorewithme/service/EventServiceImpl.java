@@ -95,15 +95,18 @@ public class EventServiceImpl implements EventService {
                                          boolean onlyAvailable,
                                          int from,
                                          int size,
-                                         TypeOfSorting sort) {
+                                         TypeOfSorting sort,
+                                         String ip) {
         PageRequest pageRequest = Page.getPageable(from, size, Optional.of(sort));
-        return eventMapper.toEventShortDtoList(getPublicEventsPage(text,
+        List<EventShortDto> result = eventMapper.toEventShortDtoList(getPublicEventsPage(text,
                 categories,
                 paid,
                 rangeStart,
                 rangeEnd,
                 onlyAvailable,
                 pageRequest));
+        statsClient.postHit("/events", ip);
+        return result;
     }
 
     @Override

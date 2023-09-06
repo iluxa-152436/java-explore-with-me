@@ -34,7 +34,8 @@ public interface EventService {
                                   boolean onlyAvailable,
                                   int from,
                                   int size,
-                                  TypeOfSorting sort);
+                                  TypeOfSorting sort,
+                                  String ip);
 
     EventFullDto getPublicEventById(long eventId, String ip);
 }

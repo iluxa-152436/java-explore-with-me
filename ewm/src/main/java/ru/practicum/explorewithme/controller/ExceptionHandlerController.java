@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.practicum.explorewithme.exception.ApiErrorMessage;
 import ru.practicum.explorewithme.exception.IllegalEventStateException;
 import ru.practicum.explorewithme.exception.NotFoundException;
+import ru.practicum.explorewithme.exception.ParticipationRequestException;
 
 @Slf4j
 @RestControllerAdvice
@@ -32,8 +33,8 @@ public class ExceptionHandlerController {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(new ApiErrorMessage("Ошибка валидации"));
     }
 
-    @ExceptionHandler(value = {IllegalEventStateException.class})
-    public ResponseEntity<ApiErrorMessage> handleStateException(Exception exception) {
+    @ExceptionHandler(value = {IllegalEventStateException.class, ParticipationRequestException.class})
+    public ResponseEntity<ApiErrorMessage> handleValidateException(Exception exception) {
         log.debug("Получен код 409 Conflict [{}]", exception.getMessage());
         return ResponseEntity.status(HttpStatus.CONFLICT).body(new ApiErrorMessage(exception.getMessage()));
     }

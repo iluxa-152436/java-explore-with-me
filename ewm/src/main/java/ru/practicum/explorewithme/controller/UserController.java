@@ -3,11 +3,9 @@ package ru.practicum.explorewithme.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.explorewithme.dto.EventFullDto;
-import ru.practicum.explorewithme.dto.EventShortDto;
-import ru.practicum.explorewithme.dto.NewEventRequest;
-import ru.practicum.explorewithme.dto.UpdateEventUserRequest;
+import ru.practicum.explorewithme.dto.*;
 import ru.practicum.explorewithme.service.EventService;
+import ru.practicum.explorewithme.service.ParticipationRequestService;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -20,6 +18,7 @@ import static ru.practicum.explorewithme.constant.DefaultValue.SIZE;
 @RequestMapping("/users/{userId}")
 public class UserController {
     private final EventService eventService;
+    private final ParticipationRequestService requestService;
 
     @PostMapping("/events")
     @ResponseStatus(HttpStatus.CREATED)
@@ -45,5 +44,22 @@ public class UserController {
                                    @PathVariable long eventId,
                                    @RequestBody @Valid UpdateEventUserRequest updateEventUserRequest) {
         return eventService.updateEvent(userId, eventId, updateEventUserRequest);
+    }
+
+    @PostMapping("/requests")
+    public ParticipationRequestDto postRequest(@PathVariable long userId,
+                                               @RequestParam long eventId) {
+        return requestService.addRequest(userId, eventId);
+    }
+
+    @GetMapping("/requests")
+    public List<ParticipationRequestDto> getRequests(@PathVariable long userId) {
+        return requestService.getRequests(userId);
+    }
+
+    @PatchMapping("/requests/{requestId}/cancel")
+    public ParticipationRequestDto patchRequest(@PathVariable long userId,
+                                                @RequestParam long requestId) {
+        return requestService.updateRequestByRequester(userId, requestId);
     }
 }

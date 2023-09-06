@@ -47,5 +47,6 @@ CREATE TABLE IF NOT EXISTS participation_requests (
   created TIMESTAMP NOT NULL,
   event_id BIGINT REFERENCES events (id) ON DELETE CASCADE NOT NULL,
   requester_id BIGINT REFERENCES app_users (id) ON DELETE CASCADE NOT NULL,
-  state VARCHAR(10) NOT NULL
+  state VARCHAR(10) NOT NULL,
+  CONSTRAINT UQ_REQUEST_REQUESTER_EVENT UNIQUE (event_id, requester_id)
 );
