@@ -39,7 +39,7 @@ public class StatsClient {
         log.debug("Request in stats-client={}", request);
 
         try {
-            ResponseEntity<String> response = restTemplate.postForEntity(statsServerUrl + "/hits",
+            ResponseEntity<String> response = restTemplate.postForEntity(statsServerUrl + "/hit",
                     request,
                     String.class);
             log.debug("Response in stats-client={}", response);

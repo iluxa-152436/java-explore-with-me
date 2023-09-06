@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Length;
+import ru.practicum.explorewithme.validator.EventDateConstraint;
 
 import java.time.LocalDateTime;
 
@@ -20,6 +21,7 @@ public class UpdateEventAdminRequest {
     @Length(min = 20, max = 7000)
     private String description;
     @JsonFormat(pattern = DATE_TIME_PATTERN)
+    @EventDateConstraint
     private LocalDateTime eventDate;
     private LocationShortDto location;
     private Boolean paid;

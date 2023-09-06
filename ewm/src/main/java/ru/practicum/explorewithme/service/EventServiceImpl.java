@@ -109,12 +109,12 @@ public class EventServiceImpl implements EventService {
     @Override
     public EventFullDto updateEvent(long eventId, UpdateEventAdminRequest updateEventAdminRequest) {
         log.debug("Update event by admin, parameters of new event={} eventId={}", updateEventAdminRequest, eventId);
-        EventFullDto result = eventMapper.toEventFullDto(eventStorage.save(eventMapper.toEntity(getEvent(eventId),
-                updateEventAdminRequest)));
-        if (result.getPublishedOn() != null && result.getEventDate().isAfter(result.getPublishedOn().plusHours(1))) {
-            return result;
-        } else {
+        Event oldEvent = getEvent(eventId);
+        if (oldEvent.getPublished() != null && oldEvent.getEventDate().isBefore(oldEvent.getPublished().plusHours(1))) {
             throw new IllegalArgumentException("The publication date must be no later than an hour before the event date");
+        } else {
+            return eventMapper.toEventFullDto(eventStorage.save(eventMapper.toEntity(oldEvent,
+                    updateEventAdminRequest)));
         }
     }
 
@@ -124,7 +124,7 @@ public class EventServiceImpl implements EventService {
         if (event.isEmpty()) {
             throw new NotFoundException("Event with id=" + eventId + " was not found");
         }
-        statsClient.postHit("/hits", ip);
+        statsClient.postHit("/event/" + eventId, ip);
         return eventMapper.toEventFullDto(event.get());
     }
 
