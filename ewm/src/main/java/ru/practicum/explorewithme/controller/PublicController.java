@@ -7,11 +7,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.explorewithme.dto.CategoryDto;
+import ru.practicum.explorewithme.dto.EventFullDto;
 import ru.practicum.explorewithme.dto.EventShortDto;
 import ru.practicum.explorewithme.service.CategoryService;
 import ru.practicum.explorewithme.service.EventService;
 import ru.practicum.explorewithme.service.TypeOfSorting;
 
+import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -46,5 +48,10 @@ public class PublicController {
                                         @RequestParam(defaultValue = SIZE) int size,
                                         @RequestParam(defaultValue = "EVENT_DATE") TypeOfSorting sort) {
         return eventService.getEvents(text, categories, paid, rangeStart, rangeEnd, onlyAvailable, from, size, sort);
+    }
+
+    @GetMapping("/events/{eventId}")
+    public EventFullDto getEvent(@PathVariable long eventId, HttpServletRequest request) {
+        return eventService.getPublicEventById(eventId, request.getRemoteAddr());
     }
 }

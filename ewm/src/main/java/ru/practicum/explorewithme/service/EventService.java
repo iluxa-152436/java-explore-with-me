@@ -35,4 +35,6 @@ public interface EventService {
                                   int from,
                                   int size,
                                   TypeOfSorting sort);
+
+    EventFullDto getPublicEventById(long eventId, String ip);
 }
