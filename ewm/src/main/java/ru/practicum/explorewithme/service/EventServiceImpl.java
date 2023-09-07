@@ -131,6 +131,19 @@ public class EventServiceImpl implements EventService {
         return eventMapper.toEventFullDto(event.get());
     }
 
+    @Override
+    public Event getEvent(long userId, long eventId) {
+        return eventStorage.findById(eventId)
+                .orElseThrow(() -> new NotFoundException("Event with id=" + userId + " not found"));
+    }
+
+    @Override
+    public void checkEventByUserId(long userId, long eventId) {
+        if (!eventStorage.existByIdAndInitiatorId(eventId, userId)) {
+            throw new NotFoundException("Event with id=" + eventId + " not found");
+        }
+    }
+
     private Event getEvent(long eventId) {
         Optional<Event> event = eventStorage.findById(eventId);
         if (event.isEmpty()) {

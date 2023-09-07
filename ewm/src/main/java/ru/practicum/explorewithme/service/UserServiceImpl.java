@@ -32,7 +32,7 @@ public class UserServiceImpl implements UserService {
                     .collect(Collectors.toList());
         } else {
             return storage.findAll(Page.getPageable(from, size, Optional.empty())).stream()
-                    .map(u-> mapper.map(u, UserDto.class))
+                    .map(u -> mapper.map(u, UserDto.class))
                     .collect(Collectors.toList());
         }
     }
@@ -49,5 +49,18 @@ public class UserServiceImpl implements UserService {
         if (!storage.existsById(userId)) {
             throw new NotFoundException("User with id=" + userId + " was not found");
         }
+    }
+
+    @Override
+    public void checkUser(long userId) {
+        if (storage.existsById(userId)) {
+            throw new NotFoundException("User with id=" + userId + " not found");
+        }
+    }
+
+    @Override
+    public User getUser(long userId) {
+        return storage.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User with id=" + userId + " not found"));
     }
 }

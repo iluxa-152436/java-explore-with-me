@@ -10,9 +10,7 @@ import ru.practicum.explorewithme.entity.*;
 import ru.practicum.explorewithme.exception.NotFoundException;
 import ru.practicum.explorewithme.exception.ParticipationRequestException;
 import ru.practicum.explorewithme.mapper.ParticipationRequestMapper;
-import ru.practicum.explorewithme.storage.EventStorage;
 import ru.practicum.explorewithme.storage.ParticipationRequestStorage;
-import ru.practicum.explorewithme.storage.UserStorage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,16 +21,14 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ParticipationRequestServiceImpl implements ParticipationRequestService {
     private final ParticipationRequestStorage requestStorage;
-    private final UserStorage userStorage;
-    private final EventStorage eventStorage;
+    private final UserService userService;
+    private final EventService eventService;
     private final ParticipationRequestMapper requestMapper;
 
     @Override
     public ParticipationRequestDto addRequest(long userId, long eventId) {
-        User user = userStorage.findById(userId)
-                .orElseThrow(() -> new NotFoundException("User with id=" + userId + " not found"));
-        Event event = eventStorage.findById(eventId)
-                .orElseThrow(() -> new NotFoundException("Event with id=" + userId + " not found"));
+        User user = userService.getUser(userId);
+        Event event = eventService.getEvent(userId, eventId);
         Long countOfConfirmed = requestStorage.countByRequesterIdAndEventIdAndState(userId,
                 eventId,
                 ParticipationRequestState.CONFIRMED);
@@ -50,13 +46,15 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
             } else {
                 state = ParticipationRequestState.CONFIRMED;
             }
-            return requestMapper.toParticipationRequestDto(requestStorage.save(requestMapper.toEntity(user, event, state)));
+            return requestMapper.toParticipationRequestDto(requestStorage.save(requestMapper.toEntity(user,
+                    event,
+                    state)));
         }
     }
 
     @Override
     public List<ParticipationRequestDto> getRequests(long userId) {
-        checkUser(userId);
+        userService.checkUser(userId);
         return requestStorage.findByRequesterId(userId).stream()
                 .map(requestMapper::toParticipationRequestDto)
                 .collect(Collectors.toList());
@@ -64,7 +62,7 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
 
     @Override
     public ParticipationRequestDto updateRequestByRequester(long userId, long requestId) {
-        checkUser(userId);
+        userService.checkUser(userId);
         ParticipationRequest request = requestStorage.findById(requestId)
                 .orElseThrow(() -> new NotFoundException("Request with id=" + requestId + " not found"));
         request.setState(ParticipationRequestState.REJECTED);
@@ -73,9 +71,8 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
 
     @Override
     public List<ParticipationRequestDto> getEventRequests(long userId, long eventId) {
-        checkUser(userId);
-        eventStorage.findByIdAndInitiatorId(eventId, userId)
-                .orElseThrow(() -> new NotFoundException("Event with id=" + eventId + " not found"));
+        userService.checkUser(userId);
+        eventService.checkEventByUserId(userId, eventId);
         return requestStorage.findByEventId(eventId).stream()
                 .map(requestMapper::toParticipationRequestDto)
                 .collect(Collectors.toList());
@@ -85,11 +82,12 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
     public EventRequestStatusUpdateResult updateRequestByEventOwner(long userId,
                                                                     long eventId,
                                                                     EventRequestStatusUpdateRequest updateRequest) {
-        checkUser(userId);
-        eventStorage.findByIdAndInitiatorId(eventId, userId)
-                .orElseThrow(() -> new NotFoundException("Event with id=" + eventId + " not found"));
+        userService.checkUser(userId);
+        eventService.checkEventByUserId(userId, eventId);
         List<ParticipationRequest> requests = requestStorage.findAllByIdIn(updateRequest.getRequestIds());
-        long available = requestStorage.countByEventIdAndRequesterIdAndState(eventId, userId, ParticipationRequestState.CONFIRMED);
+        long available = requestStorage.countByEventIdAndRequesterIdAndState(eventId,
+                userId,
+                ParticipationRequestState.CONFIRMED);
         List<ParticipationRequest> confirmed = new ArrayList<>();
         List<ParticipationRequest> rejected = new ArrayList<>();
         for (ParticipationRequest request : requests) {
@@ -105,7 +103,8 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
                         available--;
                         confirmed.add(request);
                         break;
-                    default: log.debug("Заявка не была изменена");
+                    default:
+                        log.debug("Заявка не была изменена");
                 }
             } else if (request.getState() == ParticipationRequestState.PENDING) {
                 request.setState(ParticipationRequestState.REJECTED);
@@ -114,11 +113,5 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
             }
         }
         return requestMapper.toEventRequestStatusUpdateResult(confirmed, rejected);
-    }
-
-    private void checkUser(long userId) {
-        if (userStorage.existsById(userId)) {
-            throw new NotFoundException("User with id=" + userId + " not found");
-        }
     }
 }

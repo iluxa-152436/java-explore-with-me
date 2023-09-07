@@ -84,13 +84,15 @@ public interface EventStorage extends JpaRepository<Event, Long> {
             "AND (LOWER(e.annotation) LIKE CASE WHEN :text IS NOT NULL THEN LOWER(CONCAT('%', :text, '%')) ELSE LOWER(e.annotation) END " +
             "OR LOWER(e.description) LIKE CASE WHEN :text IS NOT NULL THEN LOWER(CONCAT('%', :text, '%')) ELSE LOWER(e.description) END)")
     Page<Event> findAllForPublicWithFilters(@Param("end") LocalDateTime rangeEnd,
-                                             @Param("start") LocalDateTime rangeStart,
-                                             @Param("paid") Boolean paid,
-                                             @Param("cat") List<Long> categories,
-                                             //TODO @Param("avail") boolean onlyAvailable,
-                                             @Param("text") String text,
-                                             @Param("state") String state,
-                                             PageRequest pageRequest);
+                                            @Param("start") LocalDateTime rangeStart,
+                                            @Param("paid") Boolean paid,
+                                            @Param("cat") List<Long> categories,
+                                            //TODO @Param("avail") boolean onlyAvailable,
+                                            @Param("text") String text,
+                                            @Param("state") String state,
+                                            PageRequest pageRequest);
 
     Optional<Event> findByIdAndState(long eventId, EventState state);
+
+    boolean existByIdAndInitiatorId(long eventId, long userId);
 }

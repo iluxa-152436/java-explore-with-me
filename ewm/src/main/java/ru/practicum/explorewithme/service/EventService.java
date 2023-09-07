@@ -1,6 +1,7 @@
 package ru.practicum.explorewithme.service;
 
 import ru.practicum.explorewithme.dto.*;
+import ru.practicum.explorewithme.entity.Event;
 import ru.practicum.explorewithme.entity.EventState;
 
 import java.time.LocalDateTime;
@@ -38,4 +39,8 @@ public interface EventService {
                                   String ip);
 
     EventFullDto getPublicEventById(long eventId, String ip);
+
+    Event getEvent(long userId, long eventId);
+
+    void checkEventByUserId(long userId, long eventId);
 }
