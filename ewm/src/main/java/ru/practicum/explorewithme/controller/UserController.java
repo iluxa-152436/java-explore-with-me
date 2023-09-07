@@ -62,4 +62,17 @@ public class UserController {
                                                 @RequestParam long requestId) {
         return requestService.updateRequestByRequester(userId, requestId);
     }
+
+    @GetMapping("/events/{eventId}/requests")
+    public List<ParticipationRequestDto> getEventRequests(@PathVariable long userId,
+                                                          @RequestParam long eventId) {
+        return requestService.getEventRequests(userId, eventId);
+    }
+
+    @PatchMapping("/events/{eventId}/requests")
+    public EventRequestStatusUpdateResult updateRequests(@PathVariable long userId,
+                                                         @RequestParam long eventId,
+                                                         @RequestBody @Valid EventRequestStatusUpdateRequest updateRequest) {
+        return requestService.updateRequestByEventOwner(userId, eventId, updateRequest);
+    }
 }
