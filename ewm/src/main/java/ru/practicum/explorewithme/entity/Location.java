@@ -1,9 +1,6 @@
 package ru.practicum.explorewithme.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 
@@ -13,6 +10,7 @@ import javax.persistence.*;
 @Builder
 @Entity
 @Table(name = "locations")
+@EqualsAndHashCode(exclude = "event")
 public class Location {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

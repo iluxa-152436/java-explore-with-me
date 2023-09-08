@@ -7,9 +7,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.explorewithme.dto.CategoryDto;
+import ru.practicum.explorewithme.dto.CompilationDto;
 import ru.practicum.explorewithme.dto.EventFullDto;
 import ru.practicum.explorewithme.dto.EventShortDto;
 import ru.practicum.explorewithme.service.CategoryService;
+import ru.practicum.explorewithme.service.CompilationService;
 import ru.practicum.explorewithme.service.EventService;
 import ru.practicum.explorewithme.service.TypeOfSorting;
 
@@ -25,6 +27,7 @@ import static ru.practicum.explorewithme.constant.DefaultValue.*;
 public class PublicController {
     private final CategoryService categoryService;
     private final EventService eventService;
+    private final CompilationService compilationService;
 
     @GetMapping("/categories")
     public List<CategoryDto> getCategories(@RequestParam(defaultValue = FROM) int from,
@@ -63,5 +66,17 @@ public class PublicController {
     @GetMapping("/events/{eventId}")
     public EventFullDto getEvent(@PathVariable long eventId, HttpServletRequest request) {
         return eventService.getPublicEventById(eventId, request.getRemoteAddr());
+    }
+
+    @GetMapping("/compilations")
+    public List<CompilationDto> getCompilations(@RequestParam Optional<Boolean> pinned,
+                                                @RequestParam(defaultValue = FROM) int from,
+                                                @RequestParam(defaultValue = SIZE) int size) {
+        return compilationService.getCompilations(pinned, from, size);
+    }
+
+    @GetMapping("/compilations/{compId}")
+    public CompilationDto getCompilation(@PathVariable(name = "compId") long compilationId) {
+        return compilationService.getCompilation(compilationId);
     }
 }

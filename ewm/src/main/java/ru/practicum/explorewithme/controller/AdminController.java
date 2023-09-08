@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.explorewithme.dto.*;
 import ru.practicum.explorewithme.entity.EventState;
 import ru.practicum.explorewithme.service.CategoryService;
+import ru.practicum.explorewithme.service.CompilationService;
 import ru.practicum.explorewithme.service.EventService;
 import ru.practicum.explorewithme.service.UserService;
 
@@ -24,6 +25,7 @@ public class AdminController {
     private final UserService userService;
     private final CategoryService categoryService;
     private final EventService eventService;
+    private final CompilationService compilationService;
 
     @PostMapping("/users")
     @ResponseStatus(HttpStatus.CREATED)
@@ -78,6 +80,24 @@ public class AdminController {
                                    @RequestBody @Valid UpdateEventAdminRequest updateEventAdminRequest) {
         return eventService.updateEvent(eventId, updateEventAdminRequest);
 
+    }
+
+    @PostMapping("/compilations")
+    @ResponseStatus(HttpStatus.CREATED)
+    public CompilationDto postCompilation(@RequestBody @Valid NewCompilationDto newCompilationDto) {
+        return compilationService.addCompilation(newCompilationDto);
+    }
+
+    @DeleteMapping("/compilations/{compId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteCompilation(@PathVariable(name = "compId") long compilationId) {
+        compilationService.deleteCompilation(compilationId);
+    }
+
+    @PatchMapping("/compilations/{compId}")
+    public CompilationDto patchCompilation(@PathVariable(name = "compId") long compilationId,
+                                           @RequestBody UpdateCompilationDto updateCompilationDto) {
+        return compilationService.updateCompilation(compilationId, updateCompilationDto);
     }
 
 }

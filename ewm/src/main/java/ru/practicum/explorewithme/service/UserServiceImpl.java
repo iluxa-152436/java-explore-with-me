@@ -3,6 +3,7 @@ package ru.practicum.explorewithme.service;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.explorewithme.entity.User;
 import ru.practicum.explorewithme.exception.NotFoundException;
 import ru.practicum.explorewithme.storage.UserStorage;
@@ -15,6 +16,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class UserServiceImpl implements UserService {
     private final UserStorage storage;
     private final ModelMapper mapper;
@@ -25,6 +27,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<UserDto> getUsers(Optional<List<Long>> userIds, int from, int size) {
         if (userIds.isPresent()) {
             return storage.findByIdIn(userIds.get(), Page.getPageable(from, size, Optional.empty())).stream()
@@ -45,6 +48,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public void verifyUserExistence(long userId) {
         if (!storage.existsById(userId)) {
             throw new NotFoundException("User with id=" + userId + " was not found");
@@ -52,6 +56,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public void checkUser(long userId) {
         if (storage.existsById(userId)) {
             throw new NotFoundException("User with id=" + userId + " not found");
@@ -59,6 +64,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public User getUser(long userId) {
         return storage.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User with id=" + userId + " not found"));

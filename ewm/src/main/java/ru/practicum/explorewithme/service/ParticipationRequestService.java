@@ -16,4 +16,6 @@ public interface ParticipationRequestService {
     List<ParticipationRequestDto> getEventRequests(long userId, long eventId);
 
     EventRequestStatusUpdateResult updateRequestByEventOwner(long userId, long eventId, EventRequestStatusUpdateRequest updateRequest);
+
+    long getNumberOfConfirmed(long eventId);
 }

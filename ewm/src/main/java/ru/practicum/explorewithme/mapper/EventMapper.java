@@ -17,6 +17,7 @@ import ru.practicum.explorewithme.storage.UserStorage;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -45,8 +46,9 @@ public class EventMapper {
                 .build();
     }
 
-    public EventFullDto toEventFullDto(Event event) {
+    public EventFullDto toEventFullDto(Event event, long numberOfConfirmed) {
         EventFullDto result = mapper.map(event, EventFullDto.class);
+        result.setConfirmedRequests(numberOfConfirmed);
         result.setCreatedOn(event.getCreated());
         result.setPublishedOn(event.getPublished());
         result.setViews(statsClient.getStats(event.getCreated(),
@@ -58,12 +60,12 @@ public class EventMapper {
         return result;
     }
 
-    public EventShortDto toEventShortDto(Event event) {
+    public EventShortDto toEventShortDto(Event event, long numberOfConfirmed) {
         return EventShortDto.builder()
                 .id(event.getId())
                 .annotation(event.getAnnotation())
                 .category(mapper.map(event.getCategory(), CategoryDto.class))
-                //TODO заполнить .confirmedRequests()
+                .confirmedRequests(numberOfConfirmed)
                 .eventDate(event.getEventDate())
                 .initiator(mapper.map(event.getInitiator(), UserShortDto.class))
                 .paid(event.isPaid())
@@ -113,15 +115,15 @@ public class EventMapper {
         }
     }
 
-    public List<EventFullDto> toEventFullDtoList(Page<Event> eventPage) {
+    public List<EventFullDto> toEventFullDtoList(Page<Event> eventPage, Map<Long, Long> mapOfConfirmed) {
         return eventPage.stream()
-                .map(this::toEventFullDto)
+                .map((event) -> toEventFullDto(event, mapOfConfirmed.get(event.getId())))
                 .collect(Collectors.toList());
     }
 
-    public List<EventShortDto> toEventShortDtoList(Page<Event> eventPage) {
+    public List<EventShortDto> toEventShortDtoList(Page<Event> eventPage, Map<Long, Long> mapOfConfirmed) {
         return eventPage.stream()
-                .map(this::toEventShortDto)
+                .map((event) -> toEventShortDto(event, mapOfConfirmed.get(event.getId())))
                 .collect(Collectors.toList());
     }
 

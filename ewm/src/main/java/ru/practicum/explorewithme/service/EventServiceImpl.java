@@ -4,27 +4,33 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.explorewithme.StatsClient;
 import ru.practicum.explorewithme.dto.*;
 import ru.practicum.explorewithme.entity.Event;
 import ru.practicum.explorewithme.entity.EventState;
+import ru.practicum.explorewithme.exception.IllegalEventStateException;
 import ru.practicum.explorewithme.exception.NotFoundException;
 import ru.practicum.explorewithme.mapper.EventMapper;
 import ru.practicum.explorewithme.storage.EventStorage;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Slf4j
 @Service
+@Transactional
 public class EventServiceImpl implements EventService {
     private final EventStorage eventStorage;
     private final EventMapper eventMapper;
     private final UserService userService;
     private final StatsClient statsClient;
+    private final ParticipationRequestService requestService;
 
     @Override
     public EventFullDto addNewEvent(long userId, NewEventRequest newEventRequest) {
@@ -35,39 +41,43 @@ public class EventServiceImpl implements EventService {
         }
         Event event = eventMapper.toEntity(userId, newEventRequest, EventState.PENDING);
         log.debug("Event entity={}", event);
-        return eventMapper.toEventFullDto(eventStorage.save(event));
+        return eventMapper.toEventFullDto(eventStorage.save(event), requestService.getNumberOfConfirmed(event.getId()));
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<EventShortDto> getEvents(long userId, int from, int size) {
         log.debug("Get events from={} size={}", from, size);
         userService.verifyUserExistence(userId);
         return eventStorage.findAll(Page.getPageable(from, size, Optional.empty())).stream()
-                .map(eventMapper::toEventShortDto)
+                .map((event) -> eventMapper.toEventShortDto(event, requestService.getNumberOfConfirmed(event.getId())))
                 .collect(Collectors.toList());
     }
 
     @Override
+    @Transactional(readOnly = true)
     public EventFullDto getEventById(long userId, long eventId) {
         log.debug("Get event user={} event={}", userId, eventId);
         userService.verifyUserExistence(userId);
-        return eventMapper.toEventFullDto(getEvent(eventId));
+        return eventMapper.toEventFullDto(getEvent(eventId), requestService.getNumberOfConfirmed(eventId));
     }
 
     @Override
     public EventFullDto updateEvent(long userId, long eventId, UpdateEventUserRequest updateEventUserRequest) {
         log.debug("Update event, parameters of new event={} from userId={}", updateEventUserRequest, userId);
         userService.verifyUserExistence(userId);
-        Optional<Event> result = eventStorage.findByIdAndInitiatorId(eventId, userId);
-        if (result.isPresent()) {
-            return eventMapper.toEventFullDto(eventStorage.save(eventMapper.toEntity(result.get(),
-                    updateEventUserRequest)));
+        Event event = eventStorage.findByIdAndInitiatorId(eventId, userId)
+                .orElseThrow(() -> new NotFoundException("Event with id=" + eventId + " was not found"));
+        if (event.getState().equals(EventState.PUBLISHED)) {
+            throw new IllegalEventStateException("Статус события не позволяет изменить событие");
         } else {
-            throw new NotFoundException("Event with id=" + eventId + " was not found");
+            return eventMapper.toEventFullDto(eventStorage.save(eventMapper.toEntity(event,
+                    updateEventUserRequest)), requestService.getNumberOfConfirmed(event.getId()));
         }
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<EventFullDto> getEvents(Optional<List<Long>> users,
                                         Optional<List<EventState>> states,
                                         Optional<List<Long>> categories,
@@ -77,16 +87,18 @@ public class EventServiceImpl implements EventService {
                                         int size) {
         EventAdminFilter filter = setAdminFilter(users, states, categories, rangeStart, rangeEnd);
         PageRequest pageRequest = Page.getPageable(from, size, Optional.empty());
-        return eventMapper.toEventFullDtoList(getEventsPage(users,
+        org.springframework.data.domain.Page<Event> eventPage = getEventsPage(users,
                 states,
                 categories,
                 rangeStart,
                 rangeEnd,
                 filter,
-                pageRequest));
+                pageRequest);
+        return eventMapper.toEventFullDtoList(eventPage, getMapEventConfirmed(eventPage));
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<EventShortDto> getEvents(Optional<String> text,
                                          Optional<List<Long>> categories,
                                          Optional<Boolean> paid,
@@ -98,13 +110,14 @@ public class EventServiceImpl implements EventService {
                                          TypeOfSorting sort,
                                          String ip) {
         PageRequest pageRequest = Page.getPageable(from, size, Optional.of(sort));
-        List<EventShortDto> result = eventMapper.toEventShortDtoList(getPublicEventsPage(text,
+        org.springframework.data.domain.Page<Event> eventPage = getPublicEventsPage(text,
                 categories,
                 paid,
                 rangeStart,
                 rangeEnd,
                 onlyAvailable,
-                pageRequest));
+                pageRequest);
+        List<EventShortDto> result = eventMapper.toEventShortDtoList(eventPage, getMapEventConfirmed(eventPage));
         statsClient.postHit("/events", ip);
         return result;
     }
@@ -117,33 +130,28 @@ public class EventServiceImpl implements EventService {
             throw new IllegalArgumentException("The publication date must be no later than an hour before the event date");
         } else {
             return eventMapper.toEventFullDto(eventStorage.save(eventMapper.toEntity(oldEvent,
-                    updateEventAdminRequest)));
+                    updateEventAdminRequest)), requestService.getNumberOfConfirmed(eventId));
         }
     }
 
     @Override
+    @Transactional(readOnly = true)
     public EventFullDto getPublicEventById(long eventId, String ip) {
         Optional<Event> event = eventStorage.findByIdAndState(eventId, EventState.PUBLISHED);
         if (event.isEmpty()) {
             throw new NotFoundException("Event with id=" + eventId + " was not found");
         }
         statsClient.postHit("/event/" + eventId, ip);
-        return eventMapper.toEventFullDto(event.get());
+        return eventMapper.toEventFullDto(event.get(), requestService.getNumberOfConfirmed(eventId));
     }
 
     @Override
-    public Event getEvent(long userId, long eventId) {
-        return eventStorage.findById(eventId)
-                .orElseThrow(() -> new NotFoundException("Event with id=" + userId + " not found"));
+    @Transactional(readOnly = true)
+    public List<Event> getEvents(Set<Long> events) {
+        return eventStorage.findAllByIdIn(events);
     }
 
-    @Override
-    public void checkEventByUserId(long userId, long eventId) {
-        if (!eventStorage.existByIdAndInitiatorId(eventId, userId)) {
-            throw new NotFoundException("Event with id=" + eventId + " not found");
-        }
-    }
-
+    @Transactional(readOnly = true)
     private Event getEvent(long eventId) {
         Optional<Event> event = eventStorage.findById(eventId);
         if (event.isEmpty()) {
@@ -153,6 +161,7 @@ public class EventServiceImpl implements EventService {
         }
     }
 
+    @Transactional(readOnly = true)
     private org.springframework.data.domain.Page<Event> getPublicEventsPage(Optional<String> text,
                                                                             Optional<List<Long>> categories,
                                                                             Optional<Boolean> paid,
@@ -178,6 +187,7 @@ public class EventServiceImpl implements EventService {
                 pageRequest);
     }
 
+    @Transactional(readOnly = true)
     private org.springframework.data.domain.Page<Event> getEventsPage(Optional<List<Long>> users,
                                                                       Optional<List<EventState>> states,
                                                                       Optional<List<Long>> categories,
@@ -275,5 +285,10 @@ public class EventServiceImpl implements EventService {
         }
         log.debug("Final admin event filter combination={}", EventAdminFilter.valueOf(res.toString()));
         return EventAdminFilter.valueOf(res.toString());
+    }
+
+    private Map<Long, Long> getMapEventConfirmed(org.springframework.data.domain.Page<Event> eventPage) {
+        return eventPage.stream()
+                .collect(Collectors.toMap(Event::getId, (event) -> requestService.getNumberOfConfirmed(event.getId())));
     }
 }

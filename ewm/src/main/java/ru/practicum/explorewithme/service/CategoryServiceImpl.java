@@ -3,6 +3,7 @@ package ru.practicum.explorewithme.service;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.explorewithme.dto.CategoryDto;
 import ru.practicum.explorewithme.dto.NewCategoryRequest;
 import ru.practicum.explorewithme.entity.Category;
@@ -15,6 +16,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class CategoryServiceImpl implements CategoryService {
     private final CategoryStorage storage;
     private final ModelMapper mapper;
@@ -46,6 +48,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<CategoryDto> getCategories(int from, int size) {
         return storage.findAll(Page.getPageable(from, size, Optional.empty())).stream()
                 .map(cat -> mapper.map(cat, CategoryDto.class))
@@ -53,6 +56,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public CategoryDto getCategoryById(long categoryId) {
         Optional<Category> category = storage.findById(categoryId);
         if (category.isPresent()) {

@@ -15,6 +15,11 @@ import ru.practicum.explorewithme.exception.ParticipationRequestException;
 @Slf4j
 @RestControllerAdvice
 public class ExceptionHandlerController {
+    @ExceptionHandler(value = {IllegalEventStateException.class, ParticipationRequestException.class})
+    public ResponseEntity<ApiErrorMessage> handleValidateException(Exception exception) {
+        log.debug("Получен код 409 Conflict [{}]", exception.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(new ApiErrorMessage(exception.getMessage()));
+    }
     @ExceptionHandler(value = {IllegalArgumentException.class, MethodArgumentNotValidException.class})
     public ResponseEntity<ApiErrorMessage> handleException(Exception exception) {
         log.debug("Получен статус 400 Bad request [{}]", exception.getMessage(), exception);
@@ -31,11 +36,5 @@ public class ExceptionHandlerController {
     public ResponseEntity<ApiErrorMessage> handleConstraintViolationException(Exception exception) {
         log.debug("Получен код 409 Conflict [{}]", exception.getMessage());
         return ResponseEntity.status(HttpStatus.CONFLICT).body(new ApiErrorMessage("Ошибка валидации"));
-    }
-
-    @ExceptionHandler(value = {IllegalEventStateException.class, ParticipationRequestException.class})
-    public ResponseEntity<ApiErrorMessage> handleValidateException(Exception exception) {
-        log.debug("Получен код 409 Conflict [{}]", exception.getMessage());
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(new ApiErrorMessage(exception.getMessage()));
     }
 }
