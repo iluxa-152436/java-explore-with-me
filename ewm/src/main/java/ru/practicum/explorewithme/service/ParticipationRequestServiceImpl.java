@@ -10,6 +10,7 @@ import ru.practicum.explorewithme.dto.ParticipationRequestDto;
 import ru.practicum.explorewithme.entity.*;
 import ru.practicum.explorewithme.exception.NotFoundException;
 import ru.practicum.explorewithme.exception.ParticipationRequestException;
+import ru.practicum.explorewithme.exception.RequestConfirmationException;
 import ru.practicum.explorewithme.mapper.ParticipationRequestMapper;
 import ru.practicum.explorewithme.storage.EventStorage;
 import ru.practicum.explorewithme.storage.ParticipationRequestStorage;
@@ -49,10 +50,10 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
         log.debug("Количество подтвержденных запросов {}", countOfConfirmed);
         log.debug("Лимит запросов на участие в событии {}", event.getParticipantLimit());
 
-        if (userId == event.getInitiator().getId() || !event.getState().equals(EventState.PUBLISHED)) {
+        if (isBasicCheckPassed(userId, event)) {
             throw new ParticipationRequestException("Запрос от владельца события, или событие не опубликовано");
         }
-        if (event.isRequestModeration() && event.getParticipantLimit() != 0) {
+        /*if (event.isRequestModeration() && event.getParticipantLimit() != 0) {
             if (event.getParticipantLimit() > countOfConfirmed) {
                 newState = ParticipationRequestState.PENDING;
             } else {
@@ -61,9 +62,40 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
         } else {
             newState = ParticipationRequestState.CONFIRMED;
             log.debug("Событие не требует подтверждения");
+        }*/
+
+
+        /*if (event.isRequestModeration()) {
+            if (isLimitCheckPassed(event)) {
+                newState = ParticipationRequestState.PENDING;
+            } else {
+                throw new ParticipationRequestException("Нет мест");
+            }
+        } else {
+            if (isLimitCheckPassed(event)) {
+                newState = ParticipationRequestState.CONFIRMED;
+            } else throw new ParticipationRequestException("Нет мест");
+        }*/
+
+        if (event.isRequestModeration() && isLimitCheckPassed(event)) {
+            newState = ParticipationRequestState.PENDING;
+        } else if (isLimitCheckPassed(event)) {
+            newState = ParticipationRequestState.CONFIRMED;
+        } else {
+            throw new ParticipationRequestException("Нет мест");
         }
         log.debug("Установлен новый статус для запроса {}", newState);
         return newState;
+    }
+
+    private boolean isLimitCheckPassed(Event event) {
+        long numOfConfirmed = requestStorage.countByEventIdAndState(event.getId(), ParticipationRequestState.CONFIRMED);
+        long limit = event.getParticipantLimit();
+        return limit != 0 && limit > numOfConfirmed;
+    }
+
+    private boolean isBasicCheckPassed(long userId, Event event) {
+        return userId == event.getInitiator().getId() || !event.getState().equals(EventState.PUBLISHED);
     }
 
     @Override
@@ -105,10 +137,12 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
         userService.verifyUserExistence(userId);
         checkEventByUserId(userId, eventId);
         List<ParticipationRequest> requests = requestStorage.findAllByIdIn(updateRequest.getRequestIds());
-        long booked = requestStorage.countByEventIdAndRequesterIdAndState(eventId,
-                userId,
+        long numberOfConfirmed = requestStorage.countByEventIdAndState(eventId,
                 ParticipationRequestState.CONFIRMED);
-        long available = eventStorage.findById(eventId).get().getParticipantLimit() - booked;
+        log.debug("Количество уже подтвержденных заявок {}", numberOfConfirmed);
+        long limit = eventStorage.findById(eventId).get().getParticipantLimit();
+        long available = limit - numberOfConfirmed;
+        log.debug("Общий лимит мест в событии {}", limit);
         List<ParticipationRequest> confirmed = new ArrayList<>();
         List<ParticipationRequest> rejected = new ArrayList<>();
         for (ParticipationRequest request : requests) {
@@ -120,7 +154,6 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
                     case REJECTED:
                         request.setState(ParticipationRequestState.REJECTED);
                         log.debug("Установлен новый статус {} ", request.getState());
-                        available++;
                         rejected.add(request);
                         break;
                     case CONFIRMED:
@@ -133,11 +166,7 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
                         log.debug("Заявка не была изменена");
                 }
             } else if (request.getState() == ParticipationRequestState.PENDING) {
-                log.debug("Количество доступных мест {} в событии id={}", available, eventId);
-                request.setState(ParticipationRequestState.REJECTED);
-                log.debug("Установлен новый статус {} ", request.getState());
-                available++;
-                rejected.add(request);
+                throw new RequestConfirmationException("Нет доступных мест для одобрения заявки на участие");
             }
         }
         return requestMapper.toEventRequestStatusUpdateResult(confirmed, rejected);

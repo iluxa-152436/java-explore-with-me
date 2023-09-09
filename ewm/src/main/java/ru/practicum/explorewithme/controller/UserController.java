@@ -84,7 +84,11 @@ public class UserController {
     public EventRequestStatusUpdateResult updateRequests(@PathVariable long userId,
                                                          @PathVariable long eventId,
                                                          @RequestBody @Valid EventRequestStatusUpdateRequest updateRequest) {
-        log.debug("Поступил запрос пользователя={} на одобрение или отказ заявок на участие в событии id={}, выполняется {}", userId, eventId, updateRequest.getStatus());
+        log.debug("Поступил запрос пользователя={} на одобрение или отказ заявок с id={} на участие в событии id={}, выполняется {}",
+                userId,
+                updateRequest.getRequestIds(),
+                eventId,
+                updateRequest.getStatus());
         return requestService.updateRequestByEventOwner(userId, eventId, updateRequest);
     }
 }

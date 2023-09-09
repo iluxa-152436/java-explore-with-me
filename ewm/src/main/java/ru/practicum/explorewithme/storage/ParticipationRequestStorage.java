@@ -14,7 +14,5 @@ public interface ParticipationRequestStorage extends JpaRepository<Participation
 
     List<ParticipationRequest> findAllByIdIn(Set<Long> requestIds);
 
-    long countByEventIdAndRequesterIdAndState(long eventId, long userId, ParticipationRequestState state);
-
     long countByEventIdAndState(long eventId, ParticipationRequestState state);
 }
