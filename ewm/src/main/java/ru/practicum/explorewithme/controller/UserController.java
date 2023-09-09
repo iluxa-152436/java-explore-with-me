@@ -53,6 +53,7 @@ public class UserController {
     }
 
     @PostMapping("/requests")
+    @ResponseStatus(HttpStatus.CREATED)
     public ParticipationRequestDto postRequest(@PathVariable long userId,
                                                @RequestParam long eventId) {
         log.debug("Поступил запрос пользователя={} на создание запроса на участие в событии id={}", userId, eventId);

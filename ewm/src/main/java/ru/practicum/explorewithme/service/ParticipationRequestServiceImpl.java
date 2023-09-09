@@ -33,31 +33,37 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
         User user = userService.getUser(userId);
         Event event = eventStorage.findById(eventId)
                 .orElseThrow(() -> new NotFoundException("Event with id=" + userId + " not found"));
-        long countOfConfirmed = requestStorage.countByEventIdAndState(eventId, ParticipationRequestState.CONFIRMED);
-        log.debug("Количество подтвержденных запросов={}", countOfConfirmed);
-        log.debug("Лимит запросов на событие ={}", event.getParticipantLimit());
-        ParticipationRequestState state;
-        if (userId == event.getInitiator().getId() || !event.getState().equals(EventState.PUBLISHED)) {
-            log.debug("Не пройдена проверка владельца события, или событие не опубликовано");
-            throw new ParticipationRequestException("Владелец или событие не опубликовано");
-        } else if (event.isRequestModeration()) {
-            if (event.getParticipantLimit() > countOfConfirmed) {
-                log.debug("Установлен новый статус для запроса PENDING");
-                state = ParticipationRequestState.PENDING;
-            } else {
-                log.debug("Нет свободных мест на событие");
-                throw new ParticipationRequestException("Нет мест");
-            }
-        } else {
-            log.debug("Событие не требует подтверждения");
-            state = ParticipationRequestState.CONFIRMED;
-        }
+        ParticipationRequestState newState = calculateState(userId, event);
         log.debug("Сохранение запроса на участие в событии id={}", event.getId());
-        ParticipationRequest participationRequest = requestMapper.toEntity(user, event, state);
+        ParticipationRequest participationRequest = requestMapper.toEntity(user, event, newState);
         log.debug("Создан запрос для сохранения {} ", participationRequest);
         ParticipationRequest saved = requestStorage.save(participationRequest);
         log.debug("Сохранен запрос {} ", saved);
         return requestMapper.toParticipationRequestDto(saved);
+    }
+
+    private ParticipationRequestState calculateState(long userId, Event event) {
+        ParticipationRequestState newState;
+        long countOfConfirmed = requestStorage.countByEventIdAndState(event.getId(),
+                ParticipationRequestState.CONFIRMED);
+        log.debug("Количество подтвержденных запросов {}", countOfConfirmed);
+        log.debug("Лимит запросов на участие в событии {}", event.getParticipantLimit());
+
+        if (userId == event.getInitiator().getId() || !event.getState().equals(EventState.PUBLISHED)) {
+            throw new ParticipationRequestException("Запрос от владельца события, или событие не опубликовано");
+        }
+        if (event.isRequestModeration() && event.getParticipantLimit() != 0) {
+            if (event.getParticipantLimit() > countOfConfirmed) {
+                newState = ParticipationRequestState.PENDING;
+            } else {
+                throw new ParticipationRequestException("Нет мест");
+            }
+        } else {
+            newState = ParticipationRequestState.CONFIRMED;
+            log.debug("Событие не требует подтверждения");
+        }
+        log.debug("Установлен новый статус для запроса {}", newState);
+        return newState;
     }
 
     @Override
@@ -109,7 +115,7 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
             log.debug("Заявка id {} из списка находится в статусе {}", request.getId(), request.getState());
             if (request.getState() == ParticipationRequestState.PENDING && available >= 1) {
                 log.debug("Количество доступных мест {} в событии id={}", available, eventId);
-                log.debug("Обработка заявки в статусе {}",  ParticipationRequestState.PENDING);
+                log.debug("Обработка заявки в статусе {}", ParticipationRequestState.PENDING);
                 switch (updateRequest.getStatus()) {
                     case REJECTED:
                         request.setState(ParticipationRequestState.REJECTED);
