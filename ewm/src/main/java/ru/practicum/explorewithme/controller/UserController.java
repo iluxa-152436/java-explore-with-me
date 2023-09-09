@@ -67,23 +67,23 @@ public class UserController {
 
     @PatchMapping("/requests/{requestId}/cancel")
     public ParticipationRequestDto patchRequest(@PathVariable long userId,
-                                                @RequestParam(defaultValue = "9999") long requestId) {
+                                                @PathVariable long requestId) {
         log.debug("Поступил запрос пользователя={} на отмену заявки id={} на участие в событии", userId, requestId);
         return requestService.updateRequestByRequester(userId, requestId);
     }
 
     @GetMapping("/events/{eventId}/requests")
     public List<ParticipationRequestDto> getEventRequests(@PathVariable long userId,
-                                                          @RequestParam long eventId) {
+                                                          @PathVariable long eventId) {
         log.debug("Поступил запрос пользователя={} на получение заявок на участие по событию id={}", userId, eventId);
         return requestService.getEventRequests(userId, eventId);
     }
 
     @PatchMapping("/events/{eventId}/requests")
     public EventRequestStatusUpdateResult updateRequests(@PathVariable long userId,
-                                                         @RequestParam long eventId,
+                                                         @PathVariable long eventId,
                                                          @RequestBody @Valid EventRequestStatusUpdateRequest updateRequest) {
-        log.debug("Поступил запрос пользователя={} на одобрение или отказ заявок на участие в событии id={}", userId, eventId);
+        log.debug("Поступил запрос пользователя={} на одобрение или отказ заявок на участие в событии id={}, выполняется {}", userId, eventId, updateRequest.getStatus());
         return requestService.updateRequestByEventOwner(userId, eventId, updateRequest);
     }
 }

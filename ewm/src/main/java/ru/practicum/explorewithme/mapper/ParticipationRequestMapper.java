@@ -1,6 +1,7 @@
 package ru.practicum.explorewithme.mapper;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.practicum.explorewithme.dto.EventRequestStatusUpdateResult;
 import ru.practicum.explorewithme.dto.ParticipationRequestDto;
@@ -13,6 +14,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @RequiredArgsConstructor
 @Component
 public class ParticipationRequestMapper {
@@ -26,13 +28,15 @@ public class ParticipationRequestMapper {
     }
 
     public ParticipationRequestDto toParticipationRequestDto(ParticipationRequest participationRequest) {
-        return ParticipationRequestDto.builder()
+        ParticipationRequestDto result = ParticipationRequestDto.builder()
                 .id(participationRequest.getId())
                 .status(participationRequest.getState().name())
                 .requester(participationRequest.getRequester().getId())
                 .event(participationRequest.getEvent().getId())
                 .created(participationRequest.getCreated())
                 .build();
+        log.debug("Произведена конвертация в {}", result);
+        return result;
     }
 
     public EventRequestStatusUpdateResult toEventRequestStatusUpdateResult(List<ParticipationRequest> confirmed,

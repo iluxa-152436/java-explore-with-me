@@ -108,7 +108,7 @@ public class AdminController {
 
     @PatchMapping("/compilations/{compId}")
     public CompilationDto patchCompilation(@PathVariable(name = "compId") long compilationId,
-                                           @RequestBody UpdateCompilationDto updateCompilationDto) {
+                                           @RequestBody @Valid UpdateCompilationDto updateCompilationDto) {
         log.debug("Поступил запрос от администратора на изменение подборки событий с id={}", compilationId);
         return compilationService.updateCompilation(compilationId, updateCompilationDto);
     }

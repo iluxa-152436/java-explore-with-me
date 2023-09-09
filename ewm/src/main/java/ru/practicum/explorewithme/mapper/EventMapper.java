@@ -1,6 +1,7 @@
 package ru.practicum.explorewithme.mapper;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
@@ -23,6 +24,7 @@ import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Component
+@Slf4j
 public class EventMapper {
     private final StatsClient statsClient;
     private final CategoryStorage categoryStorage;
@@ -101,6 +103,7 @@ public class EventMapper {
             case CANCEL_REVIEW:
                 if (event.getState().equals(EventState.PENDING) || (event.getState().equals(EventState.CANCELED))) {
                     event.setState(EventState.CANCELED);
+                    log.debug("Статус события={} изменен на {}", event.getId(), event.getState());
                 } else {
                     throw new IllegalEventStateException("Статус не может быть изменен");
                 }
@@ -108,6 +111,7 @@ public class EventMapper {
             case SEND_TO_REVIEW:
                 if (event.getState().equals(EventState.CANCELED)) {
                     event.setState(EventState.PENDING);
+                    log.debug("Статус события={} изменен на {}", event.getId(), event.getState());
                 } else {
                     throw new IllegalEventStateException("Статус не может быть изменен");
                 }
@@ -149,6 +153,7 @@ public class EventMapper {
             case PUBLISH_EVENT:
                 if (event.getState().equals(EventState.PENDING)) {
                     event.setState(EventState.PUBLISHED);
+                    log.debug("Статус события={} изменен на {}", event.getId(), event.getState());
                     event.setPublished(LocalDateTime.now());
                 } else {
                     throw new IllegalEventStateException("Статус не может быть изменен");
@@ -157,6 +162,7 @@ public class EventMapper {
             case REJECT_EVENT:
                 if (event.getState().equals(EventState.PENDING)) {
                     event.setState(EventState.CANCELED);
+                    log.debug("Статус события={} изменен на {}", event.getId(), event.getState());
                 } else {
                     throw new IllegalEventStateException("Статус не может быть изменен");
                 }

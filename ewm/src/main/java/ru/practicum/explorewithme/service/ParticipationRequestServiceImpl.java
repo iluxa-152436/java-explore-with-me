@@ -52,7 +52,7 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
             log.debug("Событие не требует подтверждения");
             state = ParticipationRequestState.CONFIRMED;
         }
-        log.debug("Сохранение запроса на участие в событии id={}",  event.getId());
+        log.debug("Сохранение запроса на участие в событии id={}", event.getId());
         ParticipationRequest participationRequest = requestMapper.toEntity(user, event, state);
         log.debug("Создан запрос для сохранения {} ", participationRequest);
         ParticipationRequest saved = requestStorage.save(participationRequest);
@@ -63,7 +63,7 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
     @Override
     @Transactional(readOnly = true)
     public List<ParticipationRequestDto> getRequests(long userId) {
-        userService.checkUser(userId);
+        userService.verifyUserExistence(userId);
         return requestStorage.findByRequesterId(userId).stream()
                 .map(requestMapper::toParticipationRequestDto)
                 .collect(Collectors.toList());
@@ -71,17 +71,21 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
 
     @Override
     public ParticipationRequestDto updateRequestByRequester(long userId, long requestId) {
-        userService.checkUser(userId);
+        userService.verifyUserExistence(userId);
         ParticipationRequest request = requestStorage.findById(requestId)
                 .orElseThrow(() -> new NotFoundException("Request with id=" + requestId + " not found"));
-        request.setState(ParticipationRequestState.REJECTED);
+        request.setState(ParticipationRequestState.CANCELED);
+        log.debug("Отменен запрос={} на участие пользователя={} в событии={}",
+                request.getId(),
+                userId,
+                request.getEvent().getId());
         return requestMapper.toParticipationRequestDto(requestStorage.save(request));
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<ParticipationRequestDto> getEventRequests(long userId, long eventId) {
-        userService.checkUser(userId);
+        userService.verifyUserExistence(userId);
         checkEventByUserId(userId, eventId);
         return requestStorage.findByEventId(eventId).stream()
                 .map(requestMapper::toParticipationRequestDto)
@@ -92,24 +96,30 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
     public EventRequestStatusUpdateResult updateRequestByEventOwner(long userId,
                                                                     long eventId,
                                                                     EventRequestStatusUpdateRequest updateRequest) {
-        userService.checkUser(userId);
+        userService.verifyUserExistence(userId);
         checkEventByUserId(userId, eventId);
         List<ParticipationRequest> requests = requestStorage.findAllByIdIn(updateRequest.getRequestIds());
-        long available = requestStorage.countByEventIdAndRequesterIdAndState(eventId,
+        long booked = requestStorage.countByEventIdAndRequesterIdAndState(eventId,
                 userId,
                 ParticipationRequestState.CONFIRMED);
+        long available = eventStorage.findById(eventId).get().getParticipantLimit() - booked;
         List<ParticipationRequest> confirmed = new ArrayList<>();
         List<ParticipationRequest> rejected = new ArrayList<>();
         for (ParticipationRequest request : requests) {
+            log.debug("Заявка id {} из списка находится в статусе {}", request.getId(), request.getState());
             if (request.getState() == ParticipationRequestState.PENDING && available >= 1) {
+                log.debug("Количество доступных мест {} в событии id={}", available, eventId);
+                log.debug("Обработка заявки в статусе {}",  ParticipationRequestState.PENDING);
                 switch (updateRequest.getStatus()) {
                     case REJECTED:
                         request.setState(ParticipationRequestState.REJECTED);
+                        log.debug("Установлен новый статус {} ", request.getState());
                         available++;
                         rejected.add(request);
                         break;
                     case CONFIRMED:
                         request.setState(ParticipationRequestState.CONFIRMED);
+                        log.debug("Установлен новый статус {} ", request.getState());
                         available--;
                         confirmed.add(request);
                         break;
@@ -117,7 +127,9 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
                         log.debug("Заявка не была изменена");
                 }
             } else if (request.getState() == ParticipationRequestState.PENDING) {
+                log.debug("Количество доступных мест {} в событии id={}", available, eventId);
                 request.setState(ParticipationRequestState.REJECTED);
+                log.debug("Установлен новый статус {} ", request.getState());
                 available++;
                 rejected.add(request);
             }

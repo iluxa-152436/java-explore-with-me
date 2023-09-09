@@ -16,7 +16,5 @@ public interface UserService {
 
     void verifyUserExistence(long userId);
 
-    void checkUser(long userId);
-
     User getUser(long userId);
 }

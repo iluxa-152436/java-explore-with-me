@@ -57,14 +57,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(readOnly = true)
-    public void checkUser(long userId) {
-        if (storage.existsById(userId)) {
-            throw new NotFoundException("User with id=" + userId + " not found");
-        }
-    }
-
-    @Override
-    @Transactional(readOnly = true)
     public User getUser(long userId) {
         return storage.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User with id=" + userId + " not found"));
