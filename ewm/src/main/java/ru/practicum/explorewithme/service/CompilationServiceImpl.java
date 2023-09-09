@@ -32,7 +32,7 @@ public class CompilationServiceImpl implements CompilationService {
     @Override
     public CompilationDto addCompilation(NewCompilationDto newCompilationDto) {
         log.debug("Список id событий для подборки {}", newCompilationDto.getEvents());
-        List<Event> events = eventService.getEvents(newCompilationDto.getEvents());
+        List<Event> events = eventService.getEvents(List.copyOf(newCompilationDto.getEvents()));
         log.debug("Список событий для подборки {}", events);
         return compilationMapper.toCompilationDto(storage.save(compilationMapper.toEntity(newCompilationDto, events)), getMapEventConfirmed(events));
     }
@@ -45,9 +45,11 @@ public class CompilationServiceImpl implements CompilationService {
 
     @Override
     public CompilationDto updateCompilation(long compilationId, UpdateCompilationDto updateCompilationDto) {
+        log.debug("Новый список id событий для подборки {}", updateCompilationDto.getEvents());
         Compilation compilation = getCompilationWithCheck(compilationId);
+        log.debug("Старый список событий для подборки {}", compilation.getEvents());
         if (Optional.ofNullable(updateCompilationDto.getEvents()).isPresent()) {
-            List<Event> events = eventService.getEvents(updateCompilationDto.getEvents());
+            List<Event> events = eventService.getEvents(List.copyOf(updateCompilationDto.getEvents()));
             return compilationMapper.toCompilationDto(storage.save(compilationMapper.toEntity(compilation,
                     updateCompilationDto,
                     Optional.of(events))), getMapEventConfirmed(events));

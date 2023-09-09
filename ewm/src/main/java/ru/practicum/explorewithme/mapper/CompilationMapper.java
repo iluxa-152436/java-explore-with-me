@@ -39,9 +39,7 @@ public class CompilationMapper {
                                 UpdateCompilationDto updateCompilationDto,
                                 Optional<List<Event>> newEvents) {
         if (newEvents.isPresent()) {
-            compilation.setEvents(Set.copyOf(newEvents.get()));
-        } else {
-            compilation.setEvents(Collections.EMPTY_SET);
+            compilation.setEvents(new HashSet<>(newEvents.get()));
         }
         Optional.ofNullable(updateCompilationDto.getPinned()).ifPresent(compilation::setPinned);
         Optional.ofNullable(updateCompilationDto.getTitle()).ifPresent(compilation::setTitle);

@@ -12,7 +12,6 @@ import ru.practicum.explorewithme.entity.EventState;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 public interface EventStorage extends JpaRepository<Event, Long> {
     Optional<Event> findByIdAndInitiatorId(long eventId, long initiatorId);
@@ -103,5 +102,5 @@ public interface EventStorage extends JpaRepository<Event, Long> {
 
     boolean existsByIdAndInitiatorId(long eventId, long userId);
 
-    List<Event> findAllByIdIn(Set<Long> events);
+    List<Event> findAllByIdIn(List<Long> events);
 }

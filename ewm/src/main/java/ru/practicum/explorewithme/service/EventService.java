@@ -7,7 +7,6 @@ import ru.practicum.explorewithme.entity.EventState;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 public interface EventService {
     EventFullDto addNewEvent(long userId, NewEventRequest newEventRequest);
@@ -41,5 +40,5 @@ public interface EventService {
 
     EventFullDto getPublicEventById(long eventId, String ip);
 
-    List<Event> getEvents(Set<Long> events);
+    List<Event> getEvents(List<Long> events);
 }
