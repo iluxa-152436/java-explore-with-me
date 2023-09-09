@@ -19,6 +19,9 @@ public class StatsServiceImpl implements StatsService {
     @Override
     public List<Stats> findStats(LocalDateTime start, LocalDateTime end, boolean unique, Optional<List<String>> uris) {
         log.debug("find parameters: start {}, end {}, unique {}, uris {}", start, end, unique, uris);
+        if (start.isAfter(end)) {
+            throw new IllegalArgumentException("start DateTime must be before end DateTime");
+        }
         if (uris.isPresent()) {
             return unique ? storage.findUniqueStatByUris(start, end, uris.get()) : storage.findStatByUris(start, end, uris.get());
         } else {
