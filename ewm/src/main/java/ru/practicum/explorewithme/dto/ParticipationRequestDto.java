@@ -14,6 +14,7 @@ import static ru.practicum.explorewithme.constant.DefaultValue.DATE_TIME_PATTERN
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
+
 public class ParticipationRequestDto {
     private long id;
     @JsonFormat(pattern = DATE_TIME_PATTERN)

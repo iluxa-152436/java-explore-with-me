@@ -8,8 +8,6 @@ import java.util.List;
 import java.util.Set;
 
 public interface ParticipationRequestStorage extends JpaRepository<ParticipationRequest, Long> {
-    long countByRequesterIdAndEventIdAndState(long userId, long eventId, ParticipationRequestState state);
-
     List<ParticipationRequest> findByRequesterId(long userId);
 
     List<ParticipationRequest> findByEventId(long eventId);

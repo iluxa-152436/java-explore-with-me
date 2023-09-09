@@ -1,6 +1,7 @@
 package ru.practicum.explorewithme.controller;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,6 +23,7 @@ import java.util.Optional;
 
 import static ru.practicum.explorewithme.constant.DefaultValue.*;
 
+@Slf4j
 @RequiredArgsConstructor
 @RestController
 public class PublicController {
@@ -32,11 +34,13 @@ public class PublicController {
     @GetMapping("/categories")
     public List<CategoryDto> getCategories(@RequestParam(defaultValue = FROM) int from,
                                            @RequestParam(defaultValue = SIZE) int size) {
+        log.debug("Поступил запрос на получение категорий");
         return categoryService.getCategories(from, size);
     }
 
     @GetMapping("/categories/{categoryId}")
     public CategoryDto getCategoryById(@PathVariable long categoryId) {
+        log.debug("Поступил запрос на получение категории с id={}", categoryId);
         return categoryService.getCategoryById(categoryId);
     }
 
@@ -51,6 +55,7 @@ public class PublicController {
                                          @RequestParam(defaultValue = SIZE) int size,
                                          @RequestParam(defaultValue = "EVENT_DATE") TypeOfSorting sort,
                                          HttpServletRequest request) {
+        log.debug("Поступил запрос на получение событий с фильтрацией");
         return eventService.getEvents(text,
                 categories,
                 paid,
@@ -65,6 +70,7 @@ public class PublicController {
 
     @GetMapping("/events/{eventId}")
     public EventFullDto getEvent(@PathVariable long eventId, HttpServletRequest request) {
+        log.debug("Поступил запрос на получение события с id={}", eventId);
         return eventService.getPublicEventById(eventId, request.getRemoteAddr());
     }
 
@@ -72,11 +78,13 @@ public class PublicController {
     public List<CompilationDto> getCompilations(@RequestParam Optional<Boolean> pinned,
                                                 @RequestParam(defaultValue = FROM) int from,
                                                 @RequestParam(defaultValue = SIZE) int size) {
+        log.debug("Поступил запрос на получение подборок событий");
         return compilationService.getCompilations(pinned, from, size);
     }
 
     @GetMapping("/compilations/{compId}")
     public CompilationDto getCompilation(@PathVariable(name = "compId") long compilationId) {
+        log.debug("Поступил запрос на получение подборки событий с id={}", compilationId);
         return compilationService.getCompilation(compilationId);
     }
 }

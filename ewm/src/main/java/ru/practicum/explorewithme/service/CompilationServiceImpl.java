@@ -1,6 +1,7 @@
 package ru.practicum.explorewithme.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.explorewithme.dto.CompilationDto;
@@ -19,6 +20,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 @Transactional
 public class CompilationServiceImpl implements CompilationService {
@@ -29,7 +31,9 @@ public class CompilationServiceImpl implements CompilationService {
 
     @Override
     public CompilationDto addCompilation(NewCompilationDto newCompilationDto) {
+        log.debug("Список id событий для подборки {}", newCompilationDto.getEvents());
         List<Event> events = eventService.getEvents(newCompilationDto.getEvents());
+        log.debug("Список событий для подборки {}", events);
         return compilationMapper.toCompilationDto(storage.save(compilationMapper.toEntity(newCompilationDto, events)), getMapEventConfirmed(events));
     }
 

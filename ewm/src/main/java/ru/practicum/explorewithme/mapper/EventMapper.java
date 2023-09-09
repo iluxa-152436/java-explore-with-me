@@ -134,7 +134,7 @@ public class EventMapper {
         Optional.ofNullable(updateEventAdminRequest.getDescription()).ifPresent(event::setDescription);
         Optional.ofNullable(updateEventAdminRequest.getLocation())
                 .ifPresent(location -> event.setLocation(mapper.map(location, Location.class)));
-        Optional.of(updateEventAdminRequest.getParticipantLimit()).ifPresent(event::setParticipantLimit);
+        Optional.ofNullable(updateEventAdminRequest.getParticipantLimit()).ifPresent(event::setParticipantLimit);
         Optional.ofNullable(updateEventAdminRequest.getCategory())
                 .ifPresent(categoryId -> event.setCategory(categoryStorage.findById(categoryId).get()));
         Optional.ofNullable(updateEventAdminRequest.getTitle()).ifPresent(event::setTitle);

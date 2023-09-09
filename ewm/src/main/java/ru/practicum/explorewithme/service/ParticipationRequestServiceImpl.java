@@ -52,8 +52,12 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
             log.debug("Событие не требует подтверждения");
             state = ParticipationRequestState.CONFIRMED;
         }
-        log.debug("Сохранение события");
-        return requestMapper.toParticipationRequestDto(requestStorage.save(requestMapper.toEntity(user, event, state)));
+        log.debug("Сохранение запроса на участие в событии id={}",  event.getId());
+        ParticipationRequest participationRequest = requestMapper.toEntity(user, event, state);
+        log.debug("Создан запрос для сохранения {} ", participationRequest);
+        ParticipationRequest saved = requestStorage.save(participationRequest);
+        log.debug("Сохранен запрос {} ", saved);
+        return requestMapper.toParticipationRequestDto(saved);
     }
 
     @Override

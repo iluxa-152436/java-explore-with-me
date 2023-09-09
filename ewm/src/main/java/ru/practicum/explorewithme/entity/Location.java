@@ -11,6 +11,7 @@ import javax.persistence.*;
 @Entity
 @Table(name = "locations")
 @EqualsAndHashCode(exclude = "event")
+@ToString(exclude = "event")
 public class Location {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

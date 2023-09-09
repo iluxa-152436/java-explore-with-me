@@ -1,13 +1,9 @@
 package ru.practicum.explorewithme.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.Set;
 
 @Data
 @AllArgsConstructor
@@ -21,7 +17,7 @@ public class Event {
     private long id;
     @Column(name = "annotation", nullable = false, length = 2000)
     private String annotation;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     private Category category;
     @Column(name = "description", nullable = false, length = 7000)
@@ -30,6 +26,7 @@ public class Event {
     private LocalDateTime eventDate;
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "location_id", referencedColumnName = "id")
+    @ToString.Exclude
     private Location location;
     @Column(name = "paid")
     private boolean paid;
@@ -46,9 +43,8 @@ public class Event {
     @Column(name = "state")
     @Enumerated(EnumType.STRING)
     private EventState state;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "initiator_id")
+    @ToString.Exclude
     private User initiator;
-    @ManyToMany(mappedBy = "events")
-    Set<Compilation> compilations;
 }

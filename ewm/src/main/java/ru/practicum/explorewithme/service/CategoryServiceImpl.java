@@ -28,7 +28,6 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public void deleteCategory(long id) {
-        //TODO перед удалением проверить,что категория не использовалась ранее
         if (storage.existsById(id)) {
             storage.deleteById(id);
         } else {

@@ -181,7 +181,7 @@ public class EventServiceImpl implements EventService {
                 rangeStart.orElse(null),
                 paid.orElse(null),
                 categories.orElse(null),
-                //TODO onlyAvailable,
+                onlyAvailable,
                 text.orElse(null),
                 EventState.PUBLISHED.name(),
                 pageRequest);

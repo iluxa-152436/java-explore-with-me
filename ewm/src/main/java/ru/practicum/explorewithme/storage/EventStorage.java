@@ -83,12 +83,18 @@ public interface EventStorage extends JpaRepository<Event, Long> {
             "AND (COALESCE (:cat, null) IS NULL OR e.category.id IN :cat) " +
             "AND e.paid = COALESCE(:paid, e.paid) " +
             "AND (LOWER(e.annotation) LIKE CASE WHEN :text IS NOT NULL THEN LOWER(CONCAT('%', :text, '%')) ELSE LOWER(e.annotation) END " +
-            "OR LOWER(e.description) LIKE CASE WHEN :text IS NOT NULL THEN LOWER(CONCAT('%', :text, '%')) ELSE LOWER(e.description) END)")
+            "OR LOWER(e.description) LIKE CASE WHEN :text IS NOT NULL THEN LOWER(CONCAT('%', :text, '%')) ELSE LOWER(e.description) END) " +
+            "AND (:avail = false OR e.id IN " +
+            "   (SELECT r.event.id " +
+            "   FROM ParticipationRequest r " +
+            "   WHERE r.state = 'CONFIRMED' " +
+            "   GROUP BY r.event.id " +
+            "   HAVING e.participantLimit - COUNT(id) > 0))")
     Page<Event> findAllForPublicWithFilters(@Param("end") LocalDateTime rangeEnd,
                                             @Param("start") LocalDateTime rangeStart,
                                             @Param("paid") Boolean paid,
                                             @Param("cat") List<Long> categories,
-                                            //TODO @Param("avail") boolean onlyAvailable,
+                                            @Param("avail") boolean onlyAvailable,
                                             @Param("text") String text,
                                             @Param("state") String state,
                                             PageRequest pageRequest);
