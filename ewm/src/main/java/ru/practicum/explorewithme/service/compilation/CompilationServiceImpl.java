@@ -37,7 +37,8 @@ public class CompilationServiceImpl implements CompilationService {
         log.debug("Список id событий для подборки {}", newCompilationDto.getEvents());
         List<Event> events = eventService.getEvents(List.copyOf(newCompilationDto.getEvents()));
         log.debug("Список событий для подборки {}", events);
-        return compilationMapper.toCompilationDto(storage.save(compilationMapper.toEntity(newCompilationDto, events)), getMapEventConfirmed(events));
+        return compilationMapper.toCompilationDto(storage.save(compilationMapper.toEntity(newCompilationDto, events)),
+                getMapEventConfirmed(events));
     }
 
     @Override
@@ -64,7 +65,8 @@ public class CompilationServiceImpl implements CompilationService {
     }
 
     private Map<Long, Long> getMapEventConfirmed(List<Event> events) {
-        return events.stream().collect(Collectors.toMap(Event::getId, event -> requestService.getNumberOfConfirmed(event.getId())));
+        return events.stream().collect(Collectors.toMap(Event::getId,
+                event -> requestService.getNumberOfConfirmed(event.getId())));
     }
 
     @Override

@@ -44,40 +44,6 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
         return requestMapper.toParticipationRequestDto(saved);
     }
 
-    private ParticipationRequestState calculateState(long userId, Event event) {
-        ParticipationRequestState newState;
-        long countOfConfirmed = requestStorage.countByEventIdAndState(event.getId(),
-                ParticipationRequestState.CONFIRMED);
-        log.debug("Количество подтвержденных запросов {}", countOfConfirmed);
-        log.debug("Лимит запросов на участие в событии {}", event.getParticipantLimit());
-
-        if (!isBasicCheckPassed(userId, event)) {
-            throw new ParticipationRequestException("Запрос от владельца события, или событие не опубликовано");
-        }
-        long numOfConfirmed = requestStorage.countByEventIdAndState(event.getId(), ParticipationRequestState.CONFIRMED);
-        long limit = event.getParticipantLimit();
-
-        if (event.isRequestModeration()) {
-            if (limit != 0 && limit > numOfConfirmed) {
-                newState = ParticipationRequestState.PENDING;
-            } else if (limit == 0) {
-                newState = ParticipationRequestState.CONFIRMED;
-            } else {
-                throw new ParticipationRequestException("Нет мест");
-            }
-        } else {
-            if (limit > numOfConfirmed) {
-                newState = ParticipationRequestState.CONFIRMED;
-            } else throw new ParticipationRequestException("Нет мест");
-        }
-        log.debug("Установлен новый статус для запроса {}", newState);
-        return newState;
-    }
-
-    private boolean isBasicCheckPassed(long userId, Event event) {
-        return userId != event.getInitiator().getId() && event.getState().equals(EventState.PUBLISHED);
-    }
-
     @Override
     @Transactional(readOnly = true)
     public List<ParticipationRequestDto> getRequests(long userId) {
@@ -165,5 +131,39 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
         if (!eventStorage.existsByIdAndInitiatorId(eventId, userId)) {
             throw new NotFoundException("Event with id=" + eventId + " not found");
         }
+    }
+
+    private ParticipationRequestState calculateState(long userId, Event event) {
+        ParticipationRequestState newState;
+        long countOfConfirmed = requestStorage.countByEventIdAndState(event.getId(),
+                ParticipationRequestState.CONFIRMED);
+        log.debug("Количество подтвержденных запросов {}", countOfConfirmed);
+        log.debug("Лимит запросов на участие в событии {}", event.getParticipantLimit());
+
+        if (!isBasicCheckPassed(userId, event)) {
+            throw new ParticipationRequestException("Запрос от владельца события, или событие не опубликовано");
+        }
+        long numOfConfirmed = requestStorage.countByEventIdAndState(event.getId(), ParticipationRequestState.CONFIRMED);
+        long limit = event.getParticipantLimit();
+
+        if (event.isRequestModeration()) {
+            if (limit != 0 && limit > numOfConfirmed) {
+                newState = ParticipationRequestState.PENDING;
+            } else if (limit == 0) {
+                newState = ParticipationRequestState.CONFIRMED;
+            } else {
+                throw new ParticipationRequestException("Нет мест");
+            }
+        } else {
+            if (limit > numOfConfirmed) {
+                newState = ParticipationRequestState.CONFIRMED;
+            } else throw new ParticipationRequestException("Нет мест");
+        }
+        log.debug("Установлен новый статус для запроса {}", newState);
+        return newState;
+    }
+
+    private boolean isBasicCheckPassed(long userId, Event event) {
+        return userId != event.getInitiator().getId() && event.getState().equals(EventState.PUBLISHED);
     }
 }
