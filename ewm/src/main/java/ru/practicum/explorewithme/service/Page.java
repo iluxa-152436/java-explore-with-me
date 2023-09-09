@@ -2,6 +2,7 @@ package ru.practicum.explorewithme.service;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import ru.practicum.explorewithme.service.event.TypeOfSorting;
 
 import java.util.Optional;
 

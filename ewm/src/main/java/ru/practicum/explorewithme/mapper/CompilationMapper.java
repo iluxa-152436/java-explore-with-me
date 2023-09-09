@@ -2,9 +2,9 @@ package ru.practicum.explorewithme.mapper;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import ru.practicum.explorewithme.dto.CompilationDto;
-import ru.practicum.explorewithme.dto.NewCompilationDto;
-import ru.practicum.explorewithme.dto.UpdateCompilationDto;
+import ru.practicum.explorewithme.dto.compilation.CompilationDto;
+import ru.practicum.explorewithme.dto.compilation.NewCompilationDto;
+import ru.practicum.explorewithme.dto.compilation.UpdateCompilationDto;
 import ru.practicum.explorewithme.entity.Compilation;
 import ru.practicum.explorewithme.entity.Event;
 

@@ -4,9 +4,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.explorewithme.dto.*;
-import ru.practicum.explorewithme.service.EventService;
-import ru.practicum.explorewithme.service.ParticipationRequestService;
+import ru.practicum.explorewithme.dto.event.EventFullDto;
+import ru.practicum.explorewithme.dto.event.EventShortDto;
+import ru.practicum.explorewithme.dto.event.NewEventRequest;
+import ru.practicum.explorewithme.dto.event.UpdateEventUserRequest;
+import ru.practicum.explorewithme.dto.participationRequest.EventRequestStatusUpdateRequest;
+import ru.practicum.explorewithme.dto.participationRequest.EventRequestStatusUpdateResult;
+import ru.practicum.explorewithme.dto.participationRequest.ParticipationRequestDto;
+import ru.practicum.explorewithme.service.event.EventService;
+import ru.practicum.explorewithme.service.request.ParticipationRequestService;
 
 import javax.validation.Valid;
 import java.util.List;
