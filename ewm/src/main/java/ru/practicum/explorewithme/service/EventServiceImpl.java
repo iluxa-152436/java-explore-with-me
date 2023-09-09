@@ -141,7 +141,7 @@ public class EventServiceImpl implements EventService {
         if (event.isEmpty()) {
             throw new NotFoundException("Event with id=" + eventId + " was not found");
         }
-        statsClient.postHit("/event/" + eventId, ip);
+        statsClient.postHit("/events/" + eventId, ip);
         return eventMapper.toEventFullDto(event.get(), requestService.getNumberOfConfirmed(eventId));
     }
 
