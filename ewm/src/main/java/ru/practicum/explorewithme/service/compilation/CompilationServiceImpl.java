@@ -72,15 +72,10 @@ public class CompilationServiceImpl implements CompilationService {
     @Override
     @Transactional(readOnly = true)
     public List<CompilationDto> getCompilations(Optional<Boolean> pinned, int from, int size) {
-        if (pinned.isPresent()) {
-            return storage.findByPinned(pinned.get(), RequestPage.getPageable(from, size, Optional.empty())).stream()
-                    .map((c) -> compilationMapper.toCompilationDto(c, getMapEventConfirmed(List.copyOf(c.getEvents()))))
-                    .collect(Collectors.toList());
-        } else {
-            return storage.findAll(RequestPage.getPageable(from, size, Optional.empty())).stream()
-                    .map((c) -> compilationMapper.toCompilationDto(c, getMapEventConfirmed(List.copyOf(c.getEvents()))))
-                    .collect(Collectors.toList());
-        }
+        return storage.findByPinned(pinned.orElse(null),
+                        RequestPage.getPageable(from, size, Optional.empty())).stream()
+                .map((c) -> compilationMapper.toCompilationDto(c, getMapEventConfirmed(List.copyOf(c.getEvents()))))
+                .collect(Collectors.toList());
     }
 
     @Override
