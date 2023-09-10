@@ -4,12 +4,14 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
-@Data
 @AllArgsConstructor
-@RequiredArgsConstructor
+@NoArgsConstructor
 @Builder
 @Entity
+@Setter
+@Getter
 @Table(name = "events")
 public class Event {
     @Id
@@ -47,4 +49,42 @@ public class Event {
     @JoinColumn(name = "initiator_id")
     @ToString.Exclude
     private User initiator;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Event event = (Event) o;
+        return id == event.id && paid == event.paid
+                && participantLimit == event.participantLimit
+                && requestModeration == event.requestModeration
+                && annotation.equals(event.annotation)
+                && category.equals(event.category)
+                && description.equals(event.description)
+                && eventDate.equals(event.eventDate)
+                && location.equals(event.location)
+                && title.equals(event.title)
+                && created.equals(event.created)
+                && Objects.equals(published, event.published)
+                && state == event.state
+                && initiator.equals(event.initiator);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id,
+                annotation,
+                category,
+                description,
+                eventDate,
+                location,
+                paid,
+                participantLimit,
+                requestModeration,
+                title,
+                created,
+                published,
+                state,
+                initiator);
+    }
 }

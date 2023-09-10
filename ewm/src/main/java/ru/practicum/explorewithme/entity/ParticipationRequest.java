@@ -1,18 +1,17 @@
 package ru.practicum.explorewithme.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
-@Data
 @AllArgsConstructor
-@RequiredArgsConstructor
+@NoArgsConstructor
 @Builder
 @Entity
+@Getter
+@Setter
 @Table(name = "participation_requests")
 public class ParticipationRequest {
     @Id
@@ -29,4 +28,20 @@ public class ParticipationRequest {
     @Column(name = "state")
     @Enumerated(EnumType.STRING)
     private ParticipationRequestState state;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ParticipationRequest request = (ParticipationRequest) o;
+        return id == request.id && created.equals(request.created)
+                && event.equals(request.event)
+                && requester.equals(request.requester)
+                && state == request.state;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, created, event, requester, state);
+    }
 }

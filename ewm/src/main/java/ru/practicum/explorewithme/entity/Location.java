@@ -3,14 +3,15 @@ package ru.practicum.explorewithme.entity;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.Objects;
 
-@Data
 @AllArgsConstructor
-@RequiredArgsConstructor
+@NoArgsConstructor
 @Builder
 @Entity
+@Getter
+@Setter
 @Table(name = "locations")
-@EqualsAndHashCode(exclude = "event")
 @ToString(exclude = "event")
 public class Location {
     @Id
@@ -22,4 +23,19 @@ public class Location {
     private double lon;
     @OneToOne(mappedBy = "location")
     private Event event;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Location location = (Location) o;
+        return id == location.id && Double.compare(location.lat, lat) == 0
+                && Double.compare(location.lon, lon) == 0
+                && Objects.equals(event, location.event);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, lat, lon);
+    }
 }
