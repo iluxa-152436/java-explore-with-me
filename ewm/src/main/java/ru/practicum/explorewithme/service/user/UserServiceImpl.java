@@ -6,8 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.explorewithme.entity.User;
 import ru.practicum.explorewithme.exception.NotFoundException;
-import ru.practicum.explorewithme.service.Page;
-import ru.practicum.explorewithme.service.user.UserService;
+import ru.practicum.explorewithme.entity.RequestPage;
 import ru.practicum.explorewithme.storage.UserStorage;
 import ru.practicum.explorewithme.dto.user.NewUserRequest;
 import ru.practicum.explorewithme.dto.user.UserDto;
@@ -32,11 +31,11 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = true)
     public List<UserDto> getUsers(Optional<List<Long>> userIds, int from, int size) {
         if (userIds.isPresent()) {
-            return storage.findByIdIn(userIds.get(), Page.getPageable(from, size, Optional.empty())).stream()
+            return storage.findByIdIn(userIds.get(), RequestPage.getPageable(from, size, Optional.empty())).stream()
                     .map(u -> mapper.map(u, UserDto.class))
                     .collect(Collectors.toList());
         } else {
-            return storage.findAll(Page.getPageable(from, size, Optional.empty())).stream()
+            return storage.findAll(RequestPage.getPageable(from, size, Optional.empty())).stream()
                     .map(u -> mapper.map(u, UserDto.class))
                     .collect(Collectors.toList());
         }

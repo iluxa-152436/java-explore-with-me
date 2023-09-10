@@ -1,4 +1,4 @@
-package ru.practicum.explorewithme.service;
+package ru.practicum.explorewithme.entity;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -6,7 +6,7 @@ import ru.practicum.explorewithme.service.event.TypeOfSorting;
 
 import java.util.Optional;
 
-public class Page {
+public class RequestPage {
     public static PageRequest getPageable(int from, int size, Optional<TypeOfSorting> sort) {
         if (from < 0 || size < 1) {
             throw new IllegalArgumentException("From and size must be valid");

@@ -12,7 +12,7 @@ import ru.practicum.explorewithme.entity.Event;
 import ru.practicum.explorewithme.exception.NotFoundException;
 import ru.practicum.explorewithme.mapper.CompilationMapper;
 import ru.practicum.explorewithme.service.event.EventService;
-import ru.practicum.explorewithme.service.Page;
+import ru.practicum.explorewithme.entity.RequestPage;
 import ru.practicum.explorewithme.service.request.ParticipationRequestService;
 import ru.practicum.explorewithme.storage.CompilationStorage;
 
@@ -73,11 +73,11 @@ public class CompilationServiceImpl implements CompilationService {
     @Transactional(readOnly = true)
     public List<CompilationDto> getCompilations(Optional<Boolean> pinned, int from, int size) {
         if (pinned.isPresent()) {
-            return storage.findByPinned(pinned.get(), Page.getPageable(from, size, Optional.empty())).stream()
+            return storage.findByPinned(pinned.get(), RequestPage.getPageable(from, size, Optional.empty())).stream()
                     .map((c) -> compilationMapper.toCompilationDto(c, getMapEventConfirmed(List.copyOf(c.getEvents()))))
                     .collect(Collectors.toList());
         } else {
-            return storage.findAll(Page.getPageable(from, size, Optional.empty())).stream()
+            return storage.findAll(RequestPage.getPageable(from, size, Optional.empty())).stream()
                     .map((c) -> compilationMapper.toCompilationDto(c, getMapEventConfirmed(List.copyOf(c.getEvents()))))
                     .collect(Collectors.toList());
         }

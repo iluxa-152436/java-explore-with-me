@@ -8,8 +8,7 @@ import ru.practicum.explorewithme.dto.category.CategoryDto;
 import ru.practicum.explorewithme.dto.category.NewCategoryRequest;
 import ru.practicum.explorewithme.entity.Category;
 import ru.practicum.explorewithme.exception.NotFoundException;
-import ru.practicum.explorewithme.service.Page;
-import ru.practicum.explorewithme.service.category.CategoryService;
+import ru.practicum.explorewithme.entity.RequestPage;
 import ru.practicum.explorewithme.storage.CategoryStorage;
 
 import java.util.List;
@@ -51,7 +50,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     @Transactional(readOnly = true)
     public List<CategoryDto> getCategories(int from, int size) {
-        return storage.findAll(Page.getPageable(from, size, Optional.empty())).stream()
+        return storage.findAll(RequestPage.getPageable(from, size, Optional.empty())).stream()
                 .map(cat -> mapper.map(cat, CategoryDto.class))
                 .collect(Collectors.toList());
     }
