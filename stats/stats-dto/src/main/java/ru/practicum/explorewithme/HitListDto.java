@@ -1,3 +1,4 @@
+package ru.practicum.explorewithme;
 
 import lombok.Data;
 

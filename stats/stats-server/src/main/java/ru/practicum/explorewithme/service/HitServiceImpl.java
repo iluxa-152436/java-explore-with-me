@@ -3,7 +3,7 @@ package ru.practicum.explorewithme.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.practicum.explorewithme.mapper.HitPostDto;
+import ru.practicum.explorewithme.HitPostDto;
 import ru.practicum.explorewithme.storage.HitStorage;
 import ru.practicum.explorewithme.mapper.HitMapper;
 

@@ -1,3 +1,5 @@
+package ru.practicum.explorewithme;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
