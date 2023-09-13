@@ -13,4 +13,6 @@ public interface LocationService {
     Location getLocation(long locationId);
 
     List<LocationDto> getNearestLocation(long userId, double lon, double lat);
+
+    void deleteLocation(long locationId);
 }

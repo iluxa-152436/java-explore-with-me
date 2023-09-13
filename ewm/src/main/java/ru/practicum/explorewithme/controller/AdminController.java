@@ -126,6 +126,7 @@ public class AdminController {
     }
 
     @PostMapping("/locations")
+    @ResponseStatus(HttpStatus.CREATED)
     public LocationDto postLocation(@RequestBody @Valid LocationRequest locationRequest) {
         return locationService.addLocation(locationRequest);
     }
@@ -133,5 +134,11 @@ public class AdminController {
     @GetMapping("/locations/{locationId}")
     public LocationDto getLocation(@PathVariable long locationId) {
         return locationService.getLocationDto(locationId);
+    }
+
+    @DeleteMapping("/locations/{locationId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteLocation(@PathVariable long locationId) {
+        locationService.deleteLocation(locationId);
     }
 }

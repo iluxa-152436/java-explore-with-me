@@ -38,4 +38,9 @@ public class LocationServiceImpl implements LocationService {
     public List<LocationDto> getNearestLocation(long userId, double lon, double lat) {
         return locationStorage.findNearestByLonAndLat(lon, lat).stream().map(loc -> mapper.map(loc, LocationDto.class)).collect(Collectors.toList());
     }
+
+    @Override
+    public void deleteLocation(long locationId) {
+        locationStorage.deleteById(locationId);
+    }
 }
