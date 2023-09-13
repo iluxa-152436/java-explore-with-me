@@ -142,7 +142,7 @@ public class EventServiceImpl implements EventService {
         log.debug("Update event by admin, parameters of new event={} eventId={}", updateEventAdminRequest, eventId);
         Event oldEvent = getEvent(eventId);
         if (oldEvent.getPublished() != null && oldEvent.getEventDate().isBefore(oldEvent.getPublished().plusHours(1))) {
-            throw new IllegalArgumentException("The publication date must be no later than an hour before the event date");
+            throw new IllegalArgumentException("Publication date must be no later than an hour before the event date");
         } else {
             return eventMapper.toEventFullDto(eventStorage.save(eventMapper.toEntity(oldEvent,
                     updateEventAdminRequest)), requestService.getNumberOfConfirmed(eventId));
@@ -209,6 +209,8 @@ public class EventServiceImpl implements EventService {
                                             Optional<Double> lat,
                                             Optional<Double> dist,
                                             PageRequest pageRequest) {
+        log.debug("Параметры поиска: {}, {}, {}, {}, {}, {}, {}, {}, {}", text, categories, paid, rangeStart,
+                rangeEnd, onlyAvailable, lon, lat, dist);
         if (rangeStart.isPresent() && rangeEnd.isPresent()) {
             if (rangeStart.get().isAfter(rangeEnd.get())) {
                 throw new IllegalArgumentException("range start and range end must be valid");
@@ -216,6 +218,7 @@ public class EventServiceImpl implements EventService {
         }
         if (rangeStart.isEmpty() && rangeEnd.isEmpty()) {
             rangeStart = Optional.of(LocalDateTime.now());
+            log.debug("Установлена начальная дата поиска событий {}", rangeStart);
         }
         if ((lon.isPresent() || lat.isPresent() || dist.isPresent())
                 && (lon.isEmpty() || lat.isEmpty() || dist.isEmpty())) {
