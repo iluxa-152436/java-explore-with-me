@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.explorewithme.StatsClient;
 import ru.practicum.explorewithme.dto.event.*;
+import ru.practicum.explorewithme.dto.location.LocationShortDto;
 import ru.practicum.explorewithme.entity.Event;
 import ru.practicum.explorewithme.entity.EventState;
 import ru.practicum.explorewithme.entity.Location;
@@ -47,16 +48,7 @@ public class EventServiceImpl implements EventService {
         if (newEventRequest.getRequestModeration() == null) {
             newEventRequest.setRequestModeration(true);
         }
-        Location location;
-        if (Optional.ofNullable(newEventRequest.getLocation().getId()).isPresent()) {
-            log.debug("Существующая локация");
-            location = locationService.getLocation(newEventRequest.getLocation().getId());
-            log.debug("Получена локация из базы {}", location);
-        } else {
-            log.debug("Новая локация");
-            location = mapper.map(newEventRequest.getLocation(), Location.class);
-            log.debug("Сформирована локация");
-        }
+        Location location = calculateLocation(newEventRequest.getLocation());
         Event event = eventMapper.toEntity(userId, newEventRequest, EventState.PENDING, location);
         log.debug("Event location {}", event.getLocation());
         return eventMapper.toEventFullDto(eventStorage.save(event), requestService.getNumberOfConfirmed(event.getId()));
@@ -89,8 +81,9 @@ public class EventServiceImpl implements EventService {
         if (event.getState().equals(EventState.PUBLISHED)) {
             throw new IllegalEventStateException("Статус события не позволяет изменить событие");
         } else {
+            Location location = calculateLocation(updateEventUserRequest.getLocation());
             return eventMapper.toEventFullDto(eventStorage.save(eventMapper.toEntity(event,
-                    updateEventUserRequest)), requestService.getNumberOfConfirmed(event.getId()));
+                    updateEventUserRequest, location)), requestService.getNumberOfConfirmed(event.getId()));
         }
     }
 
@@ -165,6 +158,25 @@ public class EventServiceImpl implements EventService {
     @Transactional(readOnly = true)
     public List<Event> getEvents(List<Long> events) {
         return eventStorage.findAllByIdIn(events);
+    }
+
+    @Transactional(readOnly = true)
+    private Location calculateLocation(LocationShortDto locationShortDto) {
+        Location location;
+        if (Optional.of(locationShortDto).isPresent() && Optional.ofNullable(locationShortDto.getId()).isPresent()) {
+            log.debug("Существующая локация");
+            location = locationService.getLocation(locationShortDto.getId());
+            log.debug("Получена локация из базы {}", location);
+        } else if (locationService.getAdmLocationByGeoAndApproved(locationShortDto.getLon(),
+                locationShortDto.getLat(), true).isPresent()) {
+            location = locationService.getAdmLocationByGeoAndApproved(locationShortDto.getLon(),
+                    locationShortDto.getLat(), true).get();
+        } else {
+            log.debug("Новая локация");
+            location = mapper.map(locationShortDto, Location.class);
+            log.debug("Сформирована локация");
+        }
+        return location;
     }
 
     @Transactional(readOnly = true)

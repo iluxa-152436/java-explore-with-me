@@ -24,18 +24,20 @@ public class Location {
     private String name;
     @Column(name = "description")
     private String description;
+    @Column(name= "approved", nullable = false)
+    boolean approved = false;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Location location = (Location) o;
-        return id == location.id && Double.compare(location.lat, lat) == 0 && Double.compare(location.lon, lon) == 0;
+        return Double.compare(location.lat, lat) == 0 && Double.compare(location.lon, lon) == 0;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, lat, lon);
+        return Objects.hash(lat, lon);
     }
 
     @Override

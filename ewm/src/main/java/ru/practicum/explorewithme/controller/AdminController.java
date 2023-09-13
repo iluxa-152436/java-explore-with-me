@@ -14,6 +14,7 @@ import ru.practicum.explorewithme.dto.event.EventFullDto;
 import ru.practicum.explorewithme.dto.event.UpdateEventAdminRequest;
 import ru.practicum.explorewithme.dto.location.LocationDto;
 import ru.practicum.explorewithme.dto.location.LocationRequest;
+import ru.practicum.explorewithme.dto.location.LocationUpdateRequest;
 import ru.practicum.explorewithme.dto.user.NewUserRequest;
 import ru.practicum.explorewithme.dto.user.UserDto;
 import ru.practicum.explorewithme.entity.EventState;
@@ -140,5 +141,10 @@ public class AdminController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteLocation(@PathVariable long locationId) {
         locationService.deleteLocation(locationId);
+    }
+
+    @PatchMapping("/locations/{locationId}")
+    public LocationDto patchLocation(@PathVariable long locationId, @RequestBody LocationUpdateRequest updateRequest) {
+        return locationService.updateLocation(locationId, updateRequest);
     }
 }

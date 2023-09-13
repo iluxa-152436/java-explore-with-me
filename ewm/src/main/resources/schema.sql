@@ -20,7 +20,8 @@ CREATE TABLE IF NOT EXISTS locations (
   lat DECIMAL NOT NULL,
   lon DECIMAL NOT NULL,
   name VARCHAR(100),
-  description VARCHAR(100)
+  description VARCHAR(100),
+  approved BOOLEAN NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS categories (

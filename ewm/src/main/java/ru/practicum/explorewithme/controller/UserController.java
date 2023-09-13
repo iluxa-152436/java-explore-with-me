@@ -103,6 +103,6 @@ public class UserController {
 
     @GetMapping("/locations")
     public List<LocationDto> getNearestLocations(@PathVariable long userId, @RequestParam double lon, @RequestParam double lat) {
-        return locationService.getNearestLocation(userId, lon, lat);
+        return locationService.getNearestApprovedLocation(userId, lon, lat);
     }
 }
