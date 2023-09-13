@@ -28,7 +28,11 @@ public interface EventStorage extends JpaRepository<Event, Long> {
             "   FROM ParticipationRequest r " +
             "   WHERE r.state = 'CONFIRMED' " +
             "   GROUP BY r.event.id " +
-            "   HAVING e.participantLimit - COUNT(id) > 0))")
+            "   HAVING e.participantLimit - COUNT(id) > 0)) " +
+            "AND (COALESCE (:lon, null) IS NULL OR e.location.id IN " +
+            "   (SELECT l.id " +
+            "   FROM Location AS l " +
+            "   WHERE distance(:lat, :lon, l.lat, l.lon) <= :dist))")
     Page<Event> findAllForPublicWithFilters(@Param("end") LocalDateTime rangeEnd,
                                             @Param("start") LocalDateTime rangeStart,
                                             @Param("paid") Boolean paid,
@@ -36,6 +40,9 @@ public interface EventStorage extends JpaRepository<Event, Long> {
                                             @Param("avail") boolean onlyAvailable,
                                             @Param("text") String text,
                                             @Param("state") String state,
+                                            @Param("lon") Double lon,
+                                            @Param("lat") Double lat,
+                                            @Param("dist") Double dist,
                                             PageRequest pageRequest);
 
     @Query("SELECT e FROM Event as e " +

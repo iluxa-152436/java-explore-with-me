@@ -54,6 +54,9 @@ public class PublicController {
                                          @RequestParam(defaultValue = FROM) int from,
                                          @RequestParam(defaultValue = SIZE) int size,
                                          @RequestParam(defaultValue = "EVENT_DATE") TypeOfSorting sort,
+                                         @RequestParam Optional<Double> lon,
+                                         @RequestParam Optional<Double> lat,
+                                         @RequestParam Optional<Double> dist,
                                          HttpServletRequest request) {
         log.debug("Поступил запрос на получение событий с фильтрацией");
         return eventService.getEvents(text,
@@ -65,6 +68,9 @@ public class PublicController {
                 from,
                 size,
                 sort,
+                lon,
+                lat,
+                dist,
                 request.getRemoteAddr());
     }
 
