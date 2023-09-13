@@ -12,12 +12,15 @@ import ru.practicum.explorewithme.dto.compilation.NewCompilationDto;
 import ru.practicum.explorewithme.dto.compilation.UpdateCompilationDto;
 import ru.practicum.explorewithme.dto.event.EventFullDto;
 import ru.practicum.explorewithme.dto.event.UpdateEventAdminRequest;
+import ru.practicum.explorewithme.dto.location.LocationDto;
+import ru.practicum.explorewithme.dto.location.LocationRequest;
 import ru.practicum.explorewithme.dto.user.NewUserRequest;
 import ru.practicum.explorewithme.dto.user.UserDto;
 import ru.practicum.explorewithme.entity.EventState;
 import ru.practicum.explorewithme.service.category.CategoryService;
 import ru.practicum.explorewithme.service.compilation.CompilationService;
 import ru.practicum.explorewithme.service.event.EventService;
+import ru.practicum.explorewithme.service.location.LocationService;
 import ru.practicum.explorewithme.service.user.UserService;
 
 import javax.validation.Valid;
@@ -36,6 +39,7 @@ public class AdminController {
     private final CategoryService categoryService;
     private final EventService eventService;
     private final CompilationService compilationService;
+    private final LocationService locationService;
 
     @PostMapping("/users")
     @ResponseStatus(HttpStatus.CREATED)
@@ -121,4 +125,13 @@ public class AdminController {
         return compilationService.updateCompilation(compilationId, updateCompilationDto);
     }
 
+    @PostMapping("/locations")
+    public LocationDto postLocation(@RequestBody @Valid LocationRequest locationRequest) {
+        return locationService.addLocation(locationRequest);
+    }
+
+    @GetMapping("/locations/{locationId}")
+    public LocationDto getLocation(@PathVariable long locationId) {
+        return locationService.getLocationDto(locationId);
+    }
 }

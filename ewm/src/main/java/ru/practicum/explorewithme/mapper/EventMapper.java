@@ -34,12 +34,13 @@ public class EventMapper {
     private final ModelMapper mapper;
     private final boolean uniqueIp = true;
 
-    public Event toEntity(long userId, NewEventRequest newEventRequest, EventState state) {
+    public Event toEntity(long userId, NewEventRequest newEventRequest, EventState state, Location location) {
+        log.debug("Location in event={}", location);
         return Event.builder().annotation(newEventRequest.getAnnotation())
                 .category(categoryStorage.findById(newEventRequest.getCategory()).get())
                 .description(newEventRequest.getDescription())
                 .eventDate(newEventRequest.getEventDate())
-                .location(mapper.map(newEventRequest.getLocation(), Location.class))
+                .location(location)
                 .paid(newEventRequest.isPaid())
                 .participantLimit(newEventRequest.getParticipantLimit())
                 .title(newEventRequest.getTitle())

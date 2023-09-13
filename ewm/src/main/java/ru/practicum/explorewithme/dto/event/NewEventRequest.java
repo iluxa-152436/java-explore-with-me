@@ -12,6 +12,8 @@ import ru.practicum.explorewithme.validator.EventDateConstraint;
 import javax.validation.constraints.*;
 import java.time.LocalDateTime;
 
+import static ru.practicum.explorewithme.constant.DefaultValue.DATE_TIME_PATTERN;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
@@ -25,7 +27,7 @@ public class NewEventRequest {
     @NotNull
     @Length(min = 20, max = 7000)
     private String description;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = DATE_TIME_PATTERN)
     @EventDateConstraint
     private LocalDateTime eventDate;
     @NotNull

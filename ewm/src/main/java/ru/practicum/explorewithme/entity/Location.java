@@ -12,7 +12,6 @@ import java.util.Objects;
 @Getter
 @Setter
 @Table(name = "locations")
-@ToString(exclude = "event")
 public class Location {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,21 +20,32 @@ public class Location {
     private double lat;
     @Column(name = "lon", nullable = false)
     private double lon;
-    @OneToOne(mappedBy = "location")
-    private Event event;
+    @Column(name = "name")
+    private String name;
+    @Column(name = "description")
+    private String description;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Location location = (Location) o;
-        return id == location.id && Double.compare(location.lat, lat) == 0
-                && Double.compare(location.lon, lon) == 0
-                && Objects.equals(event, location.event);
+        return id == location.id && Double.compare(location.lat, lat) == 0 && Double.compare(location.lon, lon) == 0;
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(id, lat, lon);
+    }
+
+    @Override
+    public String toString() {
+        return "Location{" +
+                "id=" + id +
+                ", lat=" + lat +
+                ", lon=" + lon +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                '}';
     }
 }

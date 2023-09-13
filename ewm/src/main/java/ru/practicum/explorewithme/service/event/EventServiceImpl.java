@@ -2,6 +2,7 @@ package ru.practicum.explorewithme.service.event;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -10,10 +11,12 @@ import ru.practicum.explorewithme.StatsClient;
 import ru.practicum.explorewithme.dto.event.*;
 import ru.practicum.explorewithme.entity.Event;
 import ru.practicum.explorewithme.entity.EventState;
+import ru.practicum.explorewithme.entity.Location;
 import ru.practicum.explorewithme.entity.RequestPage;
 import ru.practicum.explorewithme.exception.IllegalEventStateException;
 import ru.practicum.explorewithme.exception.NotFoundException;
 import ru.practicum.explorewithme.mapper.EventMapper;
+import ru.practicum.explorewithme.service.location.LocationService;
 import ru.practicum.explorewithme.service.request.ParticipationRequestService;
 import ru.practicum.explorewithme.service.user.UserService;
 import ru.practicum.explorewithme.storage.EventStorage;
@@ -34,6 +37,8 @@ public class EventServiceImpl implements EventService {
     private final UserService userService;
     private final StatsClient statsClient;
     private final ParticipationRequestService requestService;
+    private final LocationService locationService;
+    private final ModelMapper mapper;
 
     @Override
     public EventFullDto addNewEvent(long userId, NewEventRequest newEventRequest) {
@@ -42,8 +47,18 @@ public class EventServiceImpl implements EventService {
         if (newEventRequest.getRequestModeration() == null) {
             newEventRequest.setRequestModeration(true);
         }
-        Event event = eventMapper.toEntity(userId, newEventRequest, EventState.PENDING);
-        log.debug("Event entity={}", event);
+        Location location;
+        if (Optional.ofNullable(newEventRequest.getLocation().getId()).isPresent()) {
+            log.debug("Существующая локация");
+            location = locationService.getLocation(newEventRequest.getLocation().getId());
+            log.debug("Получена локация из базы {}", location);
+        } else {
+            log.debug("Новая локация");
+            location = mapper.map(newEventRequest.getLocation(), Location.class);
+            log.debug("Сформирована локация");
+        }
+        Event event = eventMapper.toEntity(userId, newEventRequest, EventState.PENDING, location);
+        log.debug("Event location {}", event.getLocation());
         return eventMapper.toEventFullDto(eventStorage.save(event), requestService.getNumberOfConfirmed(event.getId()));
     }
 
