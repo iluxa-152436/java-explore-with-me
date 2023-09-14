@@ -1727,12 +1727,12 @@
 		},
 		{
 			"key": "lon",
-			"value": "1.11111",
+			"value": "1.1",
 			"type": "string"
 		},
 		{
 			"key": "lat",
-			"value": "1.11111",
+			"value": "1.1",
 			"type": "string"
 		},
 		{
