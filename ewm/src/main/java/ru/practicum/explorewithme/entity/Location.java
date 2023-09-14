@@ -32,12 +32,12 @@ public class Location {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Location location = (Location) o;
-        return Double.compare(location.lat, lat) == 0 && Double.compare(location.lon, lon) == 0;
+        return id == location.id && Double.compare(location.lat, lat) == 0 && Double.compare(location.lon, lon) == 0;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(lat, lon);
+        return Objects.hash(id, lat, lon);
     }
 
     @Override
