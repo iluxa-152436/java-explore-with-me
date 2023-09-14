@@ -1,0 +1,1730 @@
+{
+	"info": {
+		"_postman_id": "e805c807-1fe2-46bd-82fe-f74ba1fb4601",
+		"name": "Дополнительное задание",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "26797007"
+	},
+	"item": [
+		{
+			"name": "Создание пользователя 1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Response schema is valid\", function () {",
+							"    var schema = {",
+							"        type: \"object\",",
+							"        properties: {",
+							"            id: {",
+							"                type: \"number\"",
+							"            },",
+							"            email: {",
+							"                type: \"string\",",
+							"                format: \"email\"",
+							"            },",
+							"            name: {",
+							"                type: \"string\"",
+							"            }",
+							"        },",
+							"        required: [\"id\", \"email\", \"name\"]",
+							"    };",
+							"",
+							"    var response = pm.response.json();",
+							"    pm.expect(tv4.validate(response, schema)).to.be.true;",
+							"});",
+							"",
+							"",
+							"",
+							"",
+							"pm.test(\"Response status code is 201\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"",
+							"pm.test(\"Response has the required fields - id, email, and name\", function () {",
+							"    const responseData = pm.response.json();",
+							"",
+							"    pm.expect(responseData).to.be.an('object');",
+							"    pm.expect(responseData.id).to.exist.and.to.be.a('number');",
+							"    pm.expect(responseData.email).to.exist.and.to.be.a('string');",
+							"    pm.expect(responseData.name).to.exist.and.to.be.a('string');",
+							"});",
+							"",
+							"",
+							"pm.test(\"Email is in a valid email format\", function () {",
+							"    const responseData = pm.response.json();",
+							"",
+							"    pm.expect(responseData.email).to.match(/^[\\w-]+(\\.[\\w-]+)*@([\\w-]+\\.)+[a-zA-Z]{2,7}$/);",
+							"});",
+							"",
+							"",
+							"pm.test(\"Id is a non-negative integer\", function () {",
+							"    const responseData = pm.response.json();",
+							"",
+							"    pm.expect(responseData).to.be.an('object');",
+							"    pm.expect(responseData.id).to.be.a('number');",
+							"    pm.expect(responseData.id).to.be.at.least(0);",
+							"});",
+							"",
+							"",
+							"pm.test(\"Name is a non-empty string\", function () {",
+							"    const responseData = pm.response.json();",
+							"",
+							"    pm.expect(responseData.name).to.be.a('string').and.to.have.lengthOf.at.least(1, \"Value should not be empty\");",
+							"});",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"email\": \"ivan.petrov@practicummail.ru\",\n  \"name\": \"Иван Петров\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/admin/users",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"admin",
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Создание категории 1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Response status code is 201\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"pm.test(\"Response has id property\", function () {",
+							"    pm.expect(pm.response.json()).to.have.property('id');",
+							"});",
+							"",
+							"pm.test(\"Response has name property\", function () {",
+							"    pm.expect(pm.response.json()).to.have.property('name');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"Кино\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/admin/categories/",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"admin",
+						"categories",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Создание администратором локации 1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"",
+							"pm.test(\"Response status code is 201\", function () {",
+							"    pm.expect(pm.response.code).to.equal(201);",
+							"});",
+							"",
+							"",
+							"pm.test(\"Response has the required fields\", function () {",
+							"    const responseData = pm.response.json();",
+							"",
+							"    pm.expect(responseData).to.be.an('object');",
+							"    pm.expect(responseData.id).to.exist.and.to.be.a('number');",
+							"    pm.expect(responseData.lat).to.exist.and.to.be.a('number');",
+							"    pm.expect(responseData.lon).to.exist.and.to.be.a('number');",
+							"    pm.expect(responseData.name).to.exist.and.to.be.a('string');",
+							"    pm.expect(responseData.description).to.exist.and.to.be.a('string');",
+							"});",
+							"",
+							"",
+							"pm.test(\"id is a non-negative integer\", function () {",
+							"    const responseData = pm.response.json();",
+							"",
+							"    pm.expect(responseData.id).to.exist.and.to.be.a('number');",
+							"    pm.expect(responseData.id).to.eql(1);",
+							"});",
+							"",
+							"",
+							"pm.test(\"Name and Description should be non-empty strings\", function () {",
+							"    const responseData = pm.response.json();",
+							"",
+							"    pm.expect(responseData).to.be.an('object');",
+							"    pm.expect(responseData.name).to.be.a('string').and.to.have.lengthOf.at.least(1, \"Name should not be empty\");",
+							"    pm.expect(responseData.description).to.be.a('string').and.to.have.lengthOf.at.least(1, \"Description should not be empty\");",
+							"});",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n        \"lat\": 1.0,\n        \"lon\": 1.0,\n        \"name\": \"ADM\",\n        \"description\": \"ADM1\"\n    }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/admin/locations",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"admin",
+						"locations"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Изменение координат локации 1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"",
+							"pm.test(\"Response status code is 200\", function () {",
+							"    pm.expect(pm.response.code).to.equal(200);",
+							"});",
+							"",
+							"",
+							"pm.test(\"Validate id field in the response\", function () {",
+							"    const responseData = pm.response.json();",
+							"",
+							"    pm.expect(responseData).to.be.an('object');",
+							"    pm.expect(responseData.id).to.eql(1);",
+							"});",
+							"",
+							"",
+							"pm.test(\"Validate the lat field in the response\", function () {",
+							"    const responseData = pm.response.json();",
+							"",
+							"    pm.expect(responseData).to.be.an('object');",
+							"    pm.expect(responseData.lat).to.eql(1.1);",
+							"});",
+							"",
+							"",
+							"pm.test(\"Validate the lon field in the response\", function () {",
+							"    const responseData = pm.response.json();",
+							"",
+							"    pm.expect(responseData).to.be.an('object');",
+							"    pm.expect(responseData.lon).to.eql(1.1);",
+							"});",
+							"",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n        \"lat\": {{lat}},\n        \"lon\": {{lon}}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/admin/locations/1",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"admin",
+						"locations",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Получение ближайших локаций по координатам",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Schema is valid\", function () {",
+							"    var schema = {",
+							"        type: \"array\",",
+							"        items: {",
+							"            type: \"object\",",
+							"            properties: {",
+							"                id: {",
+							"                    type: \"number\"",
+							"                },",
+							"                lat: {",
+							"                    type: \"number\"",
+							"                },",
+							"                lon: {",
+							"                    type: \"number\"",
+							"                },",
+							"                name: {",
+							"                    type: \"string\"",
+							"                },",
+							"                description: {",
+							"                    type: \"string\"",
+							"                }",
+							"            },",
+							"            required: [\"id\", \"lat\", \"lon\", \"name\", \"description\"]",
+							"        }",
+							"    };",
+							"",
+							"    var response = pm.response.json();",
+							"    pm.expect(tv4.validate(response, schema)).to.be.true;",
+							"});",
+							"",
+							"",
+							"pm.test(\"Response status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"",
+							"pm.test(\"ID is a non-negative integer\", function () {",
+							"    const responseData = pm.response.json();",
+							"",
+							"    responseData.forEach(function (location) {",
+							"        pm.expect(location.id).to.be.a('number').to.eql(1);",
+							"    });",
+							"});",
+							"",
+							"",
+							"pm.test(\"Latitude and longitude values are valid\", function () {",
+							"    const responseData = pm.response.json();",
+							"",
+							"    responseData.forEach(function (location) {",
+							"        pm.expect(location.lat).to.eql(1.1);",
+							"        pm.expect(location.lon).to.eql(1.1);",
+							"    });",
+							"});",
+							"",
+							"pm.test(\"Name and Description should be non-empty strings\", function () {",
+							"    const responseData = pm.response.json();",
+							"",
+							"    pm.expect(responseData).to.be.an('array');",
+							"",
+							"    responseData.forEach(function (location) {",
+							"        pm.expect(location.name).to.be.a('string').and.to.have.lengthOf.at.least(1, \"Name should not be empty\");",
+							"        pm.expect(location.description).to.be.a('string').and.to.have.lengthOf.at.least(1, \"Description should not be empty\");",
+							"    });",
+							"});",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/users/1/locations?lon=10&lat=15",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"users",
+						"1",
+						"locations"
+					],
+					"query": [
+						{
+							"key": "lon",
+							"value": "10"
+						},
+						{
+							"key": "lat",
+							"value": "15"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Создание события 1 с предопределенной локацией 1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"",
+							"responseBody = pm.response.json();",
+							"",
+							"pm.test(\"Response should have a 'location' property\", function () {",
+							"    pm.expect(responseBody).to.have.property('location');",
+							"});",
+							"",
+							"pm.test(\"Location should have 'id'\", function () {",
+							"    pm.expect(responseBody.location).to.have.property('id');",
+							"    pm.expect(responseBody.location.id).to.eql(1);",
+							"});",
+							"",
+							"pm.test(\"Location should have 'lon' property with a valid longitude value\", function () {",
+							"    pm.expect(responseBody.location).to.have.property('lon');",
+							"    pm.expect(responseBody.location.lon).to.be.a('number');",
+							"    pm.expect(responseBody.location.lon).to.eql(1.1);",
+							"});",
+							"",
+							"pm.test(\"Location should have 'lat' property with a valid latitude value\", function () {",
+							"    pm.expect(responseBody.location).to.have.property('lat');",
+							"    pm.expect(responseBody.location.lat).to.be.a('number');",
+							"    pm.expect(responseBody.location.lat).to.eql(1.1);",
+							"});",
+							"",
+							"pm.test(\"Response status code is 201\", function () {",
+							"    pm.expect(pm.response.code).to.equal(201);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"annotation\": \"Сплав на байдарках похож на полет.\",\n  \"category\": 1,\n  \"description\": \"Сплав на байдарках похож на полет. На спокойной воде — это парение. На бурной, порожистой — выполнение фигур высшего пилотажа. И то, и другое дарят чувство обновления, феерические эмоции, яркие впечатления.\",\n  \"eventDate\": \"2024-12-31 15:10:05\",\n  \"location\": {\n      \"id\": 1,\n      \"lat\": 1.1,\n      \"lon\": 1.1\n  },\n  \"paid\": true,\n  \"participantLimit\": 10,\n  \"title\": \"Сплав на байдарках\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/users/1/events",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"users",
+						"1",
+						"events"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Создание события с совпадающей локацией 1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"",
+							"responseBody = pm.response.json();",
+							"",
+							"pm.test(\"Response should have a 'location' property\", function () {",
+							"    pm.expect(responseBody).to.have.property('location');",
+							"});",
+							"",
+							"pm.test(\"Location should have 'id'\", function () {",
+							"    pm.expect(responseBody.location).to.have.property('id');",
+							"    pm.expect(responseBody.location.id).to.eql(1);",
+							"});",
+							"",
+							"pm.test(\"Location should have 'lon' property with a valid longitude value\", function () {",
+							"    pm.expect(responseBody.location).to.have.property('lon');",
+							"    pm.expect(responseBody.location.lon).to.be.a('number');",
+							"    pm.expect(responseBody.location.lon).to.eql(1.1);",
+							"});",
+							"",
+							"pm.test(\"Location should have 'lat' property with a valid latitude value\", function () {",
+							"    pm.expect(responseBody.location).to.have.property('lat');",
+							"    pm.expect(responseBody.location.lat).to.be.a('number');",
+							"    pm.expect(responseBody.location.lat).to.eql(1.1);",
+							"});",
+							"",
+							"pm.test(\"Response status code is 201\", function () {",
+							"    pm.expect(pm.response.code).to.equal(201);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"annotation\": \"Сплав на байдарках похож на полет.\",\n  \"category\": 1,\n  \"description\": \"Сплав на байдарках похож на полет. На спокойной воде — это парение. На бурной, порожистой — выполнение фигур высшего пилотажа. И то, и другое дарят чувство обновления, феерические эмоции, яркие впечатления.\",\n  \"eventDate\": \"2024-12-31 15:10:05\",\n  \"location\": {\n      \"lat\": {{lat}},\n      \"lon\": {{lon}}\n  },\n  \"paid\": true,\n  \"participantLimit\": 10,\n  \"title\": \"Сплав на байдарках\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/users/1/events",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"users",
+						"1",
+						"events"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Создание события со своей локацией",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Response status code is 201\", function () {",
+							"    pm.expect(pm.response.code).to.equal(201);",
+							"});",
+							"",
+							"",
+							"responseBody = pm.response.json();",
+							"",
+							"pm.test(\"Response should have a 'location' property\", function () {",
+							"    pm.expect(responseBody).to.have.property('location');",
+							"});",
+							"",
+							"pm.test(\"Location should have new 'id'\", function () {",
+							"    pm.expect(responseBody.location).to.have.property('id');",
+							"    pm.expect(responseBody.location.id).to.eql(2);",
+							"});",
+							"",
+							"pm.test(\"Location should have 'lon' property with a valid longitude value\", function () {",
+							"    pm.expect(responseBody.location).to.have.property('lon');",
+							"    pm.expect(responseBody.location.lon).to.be.a('number');",
+							"    pm.expect(responseBody.location.lon).to.eql(1.11);",
+							"});",
+							"",
+							"pm.test(\"Location should have 'lat' property with a valid latitude value\", function () {",
+							"    pm.expect(responseBody.location).to.have.property('lat');",
+							"    pm.expect(responseBody.location.lat).to.be.a('number');",
+							"    pm.expect(responseBody.location.lat).to.eql(1.1);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"annotation\": \"Сплав на байдарках похож на полет.\",\n  \"category\": 1,\n  \"description\": \"Сплав на байдарках похож на полет. На спокойной воде — это парение. На бурной, порожистой — выполнение фигур высшего пилотажа. И то, и другое дарят чувство обновления, феерические эмоции, яркие впечатления.\",\n  \"eventDate\": \"2024-12-31 15:10:05\",\n  \"location\": {\n    \"lon\": 1.11,\n        \"lat\": 1.1\n  },\n  \"paid\": true,\n  \"participantLimit\": 10,\n  \"title\": \"Сплав на байдарках\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/users/1/events",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"users",
+						"1",
+						"events"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Создание второго события с предопределенной локацией 1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"",
+							"responseBody = pm.response.json();",
+							"",
+							"pm.test(\"Response should have a 'location' property\", function () {",
+							"    pm.expect(responseBody).to.have.property('location');",
+							"});",
+							"",
+							"pm.test(\"Location should have same 'id'\", function () {",
+							"    pm.expect(responseBody.location).to.have.property('id');",
+							"    pm.expect(responseBody.location.id).to.eql(1);",
+							"});",
+							"",
+							"pm.test(\"Location should have 'lon' property with a valid longitude value\", function () {",
+							"    pm.expect(responseBody.location).to.have.property('lon');",
+							"    pm.expect(responseBody.location.lon).to.be.a('number');",
+							"    pm.expect(responseBody.location.lon).to.eql(1.1);",
+							"});",
+							"",
+							"pm.test(\"Location should have 'lat' property with a valid latitude value\", function () {",
+							"    pm.expect(responseBody.location).to.have.property('lat');",
+							"    pm.expect(responseBody.location.lat).to.be.a('number');",
+							"    pm.expect(responseBody.location.lat).to.eql(1.1);",
+							"});",
+							"",
+							"pm.test(\"Response status code is 201\", function () {",
+							"    pm.expect(pm.response.code).to.equal(201);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"annotation\": \"Сплав на байдарках похож на полет.\",\n  \"category\": 1,\n  \"description\": \"Сплав на байдарках похож на полет. На спокойной воде — это парение. На бурной, порожистой — выполнение фигур высшего пилотажа. И то, и другое дарят чувство обновления, феерические эмоции, яркие впечатления.\",\n  \"eventDate\": \"2024-12-31 15:10:05\",\n  \"location\": {\n      \"id\": 1,\n      \"lat\": 1.1,\n      \"lon\": 1.1\n  },\n  \"paid\": true,\n  \"participantLimit\": 10,\n  \"title\": \"Сплав на байдарках\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/users/1/events",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"users",
+						"1",
+						"events"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Попытка изменить координаты локации через создание события",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"",
+							"responseBody = pm.response.json();",
+							"",
+							"pm.test(\"Response should have a 'location' property\", function () {",
+							"    pm.expect(responseBody).to.have.property('location');",
+							"});",
+							"",
+							"pm.test(\"Location should have 'id'\", function () {",
+							"    pm.expect(responseBody.location).to.have.property('id');",
+							"    pm.expect(responseBody.location.id).to.eql(1);",
+							"});",
+							"",
+							"pm.test(\"Location should have 'lon' property without changes\", function () {",
+							"    pm.expect(responseBody.location).to.have.property('lon');",
+							"    pm.expect(responseBody.location.lon).to.be.a('number');",
+							"    pm.expect(responseBody.location.lon).to.eql(1.1);",
+							"});",
+							"",
+							"pm.test(\"Location should have 'lat' property without changes\", function () {",
+							"    pm.expect(responseBody.location).to.have.property('lat');",
+							"    pm.expect(responseBody.location.lat).to.be.a('number');",
+							"    pm.expect(responseBody.location.lat).to.eql(1.1);",
+							"});",
+							"",
+							"pm.test(\"Response status code is 201\", function () {",
+							"    pm.expect(pm.response.code).to.equal(201);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"annotation\": \"Сплав на байдарках похож на полет.\",\n  \"category\": 1,\n  \"description\": \"Сплав на байдарках похож на полет. На спокойной воде — это парение. На бурной, порожистой — выполнение фигур высшего пилотажа. И то, и другое дарят чувство обновления, феерические эмоции, яркие впечатления.\",\n  \"eventDate\": \"2024-12-31 15:10:05\",\n  \"location\": {\n      \"id\": 1,\n      \"lat\": 2.0,\n      \"lon\": 2.0\n  },\n  \"paid\": true,\n  \"participantLimit\": 10,\n  \"title\": \"Сплав на байдарках\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/users/1/events",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"users",
+						"1",
+						"events"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Изменение локации события с предопределенной локацией",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"",
+							"responseBody = pm.response.json();",
+							"",
+							"pm.test(\"Response should have a 'location' property\", function () {",
+							"    pm.expect(responseBody).to.have.property('location');",
+							"});",
+							"",
+							"pm.test(\"Location should have 'id'\", function () {",
+							"    pm.expect(responseBody.location).to.have.property('id');",
+							"    pm.expect(responseBody.location.id).to.eql(3);",
+							"});",
+							"",
+							"pm.test(\"Location should have 'lon' property without changes\", function () {",
+							"    pm.expect(responseBody.location).to.have.property('lon');",
+							"    pm.expect(responseBody.location.lon).to.be.a('number');",
+							"    pm.expect(responseBody.location.lon).to.eql(37.66);",
+							"});",
+							"",
+							"pm.test(\"Location should have 'lat' property without changes\", function () {",
+							"    pm.expect(responseBody.location).to.have.property('lat');",
+							"    pm.expect(responseBody.location.lat).to.be.a('number');",
+							"    pm.expect(responseBody.location.lat).to.eql(55.555);",
+							"});",
+							"",
+							"pm.test(\"Response status code is 201\", function () {",
+							"    pm.expect(pm.response.code).to.equal(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"annotation\": \"Сап прогулки по рекам и каналам – это возможность увидеть Практикбург с другого ракурса\",\n  \"category\": 1,\n  \"description\": \"От английского SUP - Stand Up Paddle — \\\"стоя на доске с веслом\\\", гавайская разновидность сёрфинга, в котором серфер, стоя на доске, катается на волнах и при этом гребет веслом, а не руками, как в классическом серфинге.\",\n  \"eventDate\": \"2023-10-11 23:10:05\",\n  \"location\": {\n    \"lat\": 55.555,\n    \"lon\": 37.66\n  },\n  \"paid\": true,\n  \"participantLimit\": 7,\n  \"requestModeration\": false,\n  \"stateAction\": \"CANCEL_REVIEW\",\n  \"title\": \"Сап прогулки по рекам и каналам\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/users/1/events/1",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"users",
+						"1",
+						"events",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Получение событий пользователем 1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Response status code is 200\", function () {",
+							"    pm.expect(pm.response.code).to.equal(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/users/1/events/",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"users",
+						"1",
+						"events",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Создание администратором локации 4",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"responseBody = pm.response.json();",
+							"",
+							"pm.test(\"Response should have an 'id' property\", function () {",
+							"    pm.expect(responseBody).to.have.property('id');",
+							"    pm.expect(responseBody.id).to.equal(4);",
+							"});",
+							"",
+							"pm.test(\"Response should have a 'lat' property with value 7.0\", function () {",
+							"    pm.expect(responseBody).to.have.property('lat');",
+							"    pm.expect(responseBody.lat).to.equal(7.0);",
+							"});",
+							"",
+							"pm.test(\"Response should have a 'lon' property with value -10.0\", function () {",
+							"    pm.expect(responseBody).to.have.property('lon');",
+							"    pm.expect(responseBody.lon).to.equal(-10.0);",
+							"});",
+							"",
+							"pm.test(\"Response status code is 201\", function () {",
+							"    pm.expect(pm.response.code).to.equal(201);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n        \"lat\": 7.0,\n        \"lon\": -10.0,\n        \"name\": \"ADM\",\n        \"description\": \"ADM1\"\n    }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/admin/locations",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"admin",
+						"locations"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Ошибка при создании дубля локации администратором",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Response status code is 400\", function () {",
+							"    pm.expect(pm.response.code).to.equal(400);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n        \"lat\": 7.0,\n        \"lon\": -10.0,\n        \"name\": \"ADM\",\n        \"description\": \"ADM1\"\n    }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/admin/locations",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"admin",
+						"locations"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Удаление локации 4",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Response status code is 204\", function () {",
+							"    pm.expect(pm.response.code).to.equal(204);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/admin/locations/4",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"admin",
+						"locations",
+						"4"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Попытка удаления локации 1 где есть события",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Response status code is 409\", function () {",
+							"    pm.expect(pm.response.code).to.equal(409);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/admin/locations/1",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"admin",
+						"locations",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Публикация события 1 админом",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Response status code is 200\", function () {",
+							"    pm.expect(pm.response.code).to.equal(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"stateAction\": \"PUBLISH_EVENT\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/admin/events/2",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"admin",
+						"events",
+						"2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Создание события 6",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Response status code is 201\", function () {",
+							"    pm.expect(pm.response.code).to.equal(201);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"annotation\": \"Сплав на байдарках похож на полет.\",\n  \"category\": 1,\n  \"description\": \"Сплав на байдарках похож на полет. На спокойной воде — это парение. На бурной, порожистой — выполнение фигур высшего пилотажа. И то, и другое дарят чувство обновления, феерические эмоции, яркие впечатления.\",\n  \"eventDate\": \"2024-12-31 15:10:05\",\n  \"location\": {\n    \"lon\": 1,\n        \"lat\": 1\n  },\n  \"paid\": true,\n  \"participantLimit\": 10,\n  \"title\": \"Сплав на байдарках\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/users/1/events",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"users",
+						"1",
+						"events"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Публикация события 6",
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"stateAction\": \"PUBLISH_EVENT\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/admin/events/6",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"admin",
+						"events",
+						"6"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Поиск опубликованных событий в радиусе 15 от геопозиции пользователя",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Response status code is 200\", function () {",
+							"    pm.expect(pm.response.code).to.equal(200);",
+							"});",
+							"",
+							"responseBody = pm.response.json();",
+							"",
+							"pm.test(\"Response should be an array\", function () {",
+							"    pm.expect(responseBody).to.be.an('array');",
+							"    pm.expect(responseBody).to.have.length(1);",
+							"});",
+							"",
+							"pm.test(\"The 'id' field should be equal to 2\", function () {",
+							"    pm.expect(responseBody[0]).to.have.property('id');",
+							"    pm.expect(responseBody[0].id).to.equal(2);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/events?lon={{lon}}&lat={{lat}}&dist=5",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"events"
+					],
+					"query": [
+						{
+							"key": "lon",
+							"value": "{{lon}}"
+						},
+						{
+							"key": "lat",
+							"value": "{{lat}}"
+						},
+						{
+							"key": "dist",
+							"value": "5",
+							"description": "расстояние до события в км"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Поиск опубликованных событий в радиусе 16 от геопозиции пользователя",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Response status code is 200\", function () {",
+							"    pm.expect(pm.response.code).to.equal(200);",
+							"});",
+							"",
+							"responseBody = pm.response.json();",
+							"",
+							"pm.test(\"Response should be an array\", function () {",
+							"    pm.expect(responseBody).to.be.an('array');",
+							"    pm.expect(responseBody).to.have.length(2);",
+							"});",
+							"",
+							"pm.test(\"The 'id' field should be equal to 2\", function () {",
+							"    pm.expect(responseBody[1]).to.have.property('id');",
+							"    pm.expect(responseBody[1].id).to.equal(6);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/events?lon={{lon}}&lat={{lat}}&dist=16",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"events"
+					],
+					"query": [
+						{
+							"key": "lon",
+							"value": "{{lon}}"
+						},
+						{
+							"key": "lat",
+							"value": "{{lat}}"
+						},
+						{
+							"key": "dist",
+							"value": "16",
+							"description": "расстояние до события в км"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Создание администратором локации проверка ограничений 1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"",
+							"pm.test(\"Response status code is 201\", function () {",
+							"    pm.expect(pm.response.code).to.equal(201);",
+							"});",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n        \"lat\": -90,\n        \"lon\": -180,\n        \"name\": \"ADM\",\n        \"description\": \"ADM1\"\n    }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/admin/locations",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"admin",
+						"locations"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Создание администратором локации проверка ограничений 4",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"",
+							"pm.test(\"Response status code is 201\", function () {",
+							"    pm.expect(pm.response.code).to.equal(201);",
+							"});",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n        \"lat\": 90,\n        \"lon\": 180,\n        \"name\": \"ADM\",\n        \"description\": \"ADM1\"\n    }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/admin/locations",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"admin",
+						"locations"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Создание администратором локации проверка ограничений 2",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"",
+							"pm.test(\"Response status code is 400\", function () {",
+							"    pm.expect(pm.response.code).to.equal(400);",
+							"});",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n        \"lat\": -91,\n        \"lon\": -181,\n        \"name\": \"ADM\",\n        \"description\": \"ADM1\"\n    }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/admin/locations",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"admin",
+						"locations"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Создание администратором локации проверка ограничений 3",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"",
+							"pm.test(\"Response status code is 400\", function () {",
+							"    pm.expect(pm.response.code).to.equal(400);",
+							"});",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n        \"lat\": 91,\n        \"lon\": 181,\n        \"name\": \"ADM\",\n        \"description\": \"ADM1\"\n    }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/admin/locations",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"admin",
+						"locations"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"API = class {",
+					"    constructor(postman, verbose = false, baseUrl = \"http://localhost:8080\") {",
+					"        this.baseUrl = baseUrl;",
+					"        this.pm = postman;",
+					"        this._verbose = verbose;",
+					"    }",
+					"",
+					"    async addUser(user, verbose=null) {",
+					"        return this.post(\"/admin/users\", user, \"Ошибка при добавлении нового пользователя: \", verbose);",
+					"    }",
+					"",
+					"    async addCategory(category, verbose=null) {",
+					"        return this.post(\"/admin/categories\", category, \"Ошибка при добавлении новой категории: \", verbose);",
+					"    }",
+					"",
+					"    async addEvent(userId, event, verbose=null) {",
+					"        return this.post(\"/users/\" + userId + \"/events\", event, \"Ошибка при добавлении нового события: \", verbose);",
+					"    }",
+					"",
+					"    async addCompilation(compilation, verbose=null) {",
+					"        return this.post(\"/admin/compilations\", compilation, \"Ошибка при добавлении новой подборки: \", verbose);",
+					"    }",
+					"",
+					"    async publishParticipationRequest(eventId, userId, verbose=null) {",
+					"        return this.post('/users/' + userId + '/requests?eventId=' + eventId, null, \"Ошибка при добавлении нового запроса на участие в событии\", verbose);",
+					"    }",
+					"",
+					"    async publishEvent(eventId, verbose=null) {",
+					"        return this.patch('/admin/events/' + eventId, {stateAction: \"PUBLISH_EVENT\"}, \"Ошибка при публикации события\", verbose);",
+					"    }",
+					"    ",
+					"    async rejectEvent(eventId, verbose=null) {",
+					"        return this.patch('/admin/events/' + eventId, {stateAction: \"REJECT_EVENT\"}, \"Ошибка при отмене события\", verbose);",
+					"    }",
+					"",
+					"    async acceptParticipationRequest(eventId, userId, reqId, verbose=null) {",
+					"        return this.patch('/users/' + userId + '/events/' + eventId + '/requests/', {requestIds:[reqId], status: \"CONFIRMED\"}, \"Ошибка при принятии заявки на участие в событии\", verbose);",
+					"    }",
+					"",
+					"    async findCategory(catId, verbose=null) {",
+					"        return this.get('/categories/' + catId, null, \"Ошибка при поиске категории по id\", verbose);",
+					"    }",
+					"",
+					"    async findCompilation(compId, verbose=null) {",
+					"        return this.get('/compilations/' + compId, null, \"Ошибка при поиске подборки по id\", verbose);",
+					"    }",
+					"",
+					"    async findEvent(eventId, verbose=null) {",
+					"        return this.get('/events/' + eventId, null, \"Ошибка при поиске события по id\", verbose);",
+					"    }",
+					"",
+					"    async findUser(userId, verbose=null) {",
+					"        return this.get('/admin/users?ids=' + userId, null, \"Ошибка при поиске пользователя по id\", verbose);",
+					"    }",
+					"",
+					"    async post(path, body, errorText = \"Ошибка при выполнении post-запроса: \", verbose=null) {",
+					"        return this.sendRequest(\"POST\", path, body, errorText, verbose);",
+					"    }",
+					"",
+					"    async patch(path, body = null, errorText = \"Ошибка при выполнении patch-запроса: \", verbose=null) {",
+					"        return this.sendRequest(\"PATCH\", path, body, errorText, verbose);",
+					"    }",
+					"",
+					"    async get(path, body = null, errorText = \"Ошибка при выполнении get-запроса: \", verbose=null) {",
+					"        return this.sendRequest(\"GET\", path, body, errorText, verbose);",
+					"    }",
+					"",
+					"    async sendRequest(method, path, body=null, errorText = \"Ошибка при выполнении запроса: \", verbose=null) {",
+					"        return new Promise((resolve, reject) => {",
+					"            verbose = verbose == null ? this._verbose : verbose;",
+					"",
+					"            const request = {",
+					"                url: this.baseUrl + path,",
+					"                method: method,",
+					"                body: body == null ? \"\" : JSON.stringify(body),",
+					"                header: { \"Content-Type\": \"application/json\" },",
+					"            };",
+					"",
+					"            if(verbose) {",
+					"                console.log(\"Отправляю запрос: \", request);",
+					"            }",
+					"",
+					"            try {",
+					"                this.pm.sendRequest(request, (error, response) => {",
+					"                    if(error || (response.code >= 400 && response.code <= 599)) {",
+					"                        let err = error ? error : JSON.stringify(response.json());",
+					"                        console.error(\"При выполнении запроса к серверу возникла ошика.\\n\", err,",
+					"                             \"\\nДля отладки проблемы повторите такой же запрос к вашей программе \" + ",
+					"                             \"на локальном компьютере. Данные запроса:\\n\", JSON.stringify(request));",
+					"",
+					"                        reject(new Error(errorText + err));",
+					"                    }",
+					"",
+					"                    if(verbose) {",
+					"                        console.log(\"Результат обработки запроса: код состояния - \", response.code, \", тело: \", response.json());",
+					"                    }",
+					"",
+					"                    resolve(response.json());",
+					"                });",
+					"            } catch(err) {",
+					"                if(verbose) {",
+					"                    console.error(errorText, err);",
+					"                }",
+					"                return Promise.reject(err);",
+					"            }",
+					"        });",
+					"    }",
+					"};",
+					"",
+					"RandomUtils = class {",
+					"    constructor() {}",
+					"",
+					"    getUser() {",
+					"        return {",
+					"            name: pm.variables.replaceIn('{{$randomFullName}}'),",
+					"            email: pm.variables.replaceIn('{{$randomEmail}}')",
+					"        };",
+					"    }",
+					"",
+					"    getCategory() {",
+					"        return {",
+					"            name: pm.variables.replaceIn('{{$randomWord}}') + Math.floor(Math.random() * 100).toString()",
+					"        };",
+					"    }",
+					"",
+					"    getEvent(categoryId) {",
+					"        return {",
+					"            annotation: pm.variables.replaceIn('{{$randomLoremParagraph}}'),",
+					"            category: categoryId,",
+					"            description: pm.variables.replaceIn('{{$randomLoremParagraphs}}'),",
+					"            eventDate: this.getFutureDateTime(),",
+					"            location: {",
+					"                lat: parseFloat(pm.variables.replaceIn('{{$randomLatitude}}')),",
+					"                lon: parseFloat(pm.variables.replaceIn('{{$randomLongitude}}')),",
+					"            },",
+					"            paid: pm.variables.replaceIn('{{$randomBoolean}}'),",
+					"            participantLimit: pm.variables.replaceIn('{{$randomInt}}'),",
+					"            requestModeration: pm.variables.replaceIn('{{$randomBoolean}}'),",
+					"            title: pm.variables.replaceIn('{{$randomLoremSentence}}'),",
+					"        }",
+					"    }",
+					"",
+					"    getCompilation(...eventIds) {",
+					"        return {",
+					"            title: pm.variables.replaceIn('{{$randomLoremSentence}}').slice(0, 50),",
+					"            pinned: pm.variables.replaceIn('{{$randomBoolean}}'),",
+					"            events: eventIds",
+					"        };",
+					"    }",
+					"",
+					"",
+					"    getFutureDateTime(hourShift = 5, minuteShift=0, yearShift=0) {",
+					"        let moment = require('moment');",
+					"",
+					"        let m = moment();",
+					"        m.add(hourShift, 'hour');",
+					"        m.add(minuteShift, 'minute');",
+					"        m.add(yearShift, 'year');",
+					"",
+					"        return m.format('YYYY-MM-DD HH:mm:ss');",
+					"    }",
+					"",
+					"    getWord(length = 1) {",
+					"        let result = '';",
+					"        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';",
+					"        const charactersLength = characters.length;",
+					"        let counter = 0;",
+					"        while (counter < length) {",
+					"            result += characters.charAt(Math.floor(Math.random() * charactersLength));",
+					"            counter += 1;",
+					"        }",
+					"        return result;",
+					"    }",
+					"}"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "name",
+			"value": ""
+		},
+		{
+			"key": "usersCount",
+			"value": 1,
+			"type": "number"
+		},
+		{
+			"key": "catid",
+			"value": 1,
+			"type": "number"
+		},
+		{
+			"key": "request_body",
+			"value": ""
+		},
+		{
+			"key": "mail",
+			"value": ""
+		},
+		{
+			"key": "response",
+			"value": ""
+		},
+		{
+			"key": "uid",
+			"value": 1,
+			"type": "number"
+		},
+		{
+			"key": "catname",
+			"value": ""
+		},
+		{
+			"key": "eid",
+			"value": 1,
+			"type": "number"
+		},
+		{
+			"key": "compid",
+			"value": 1,
+			"type": "number"
+		},
+		{
+			"key": "toCheck",
+			"value": ""
+		},
+		{
+			"key": "newDataToSet",
+			"value": ""
+		},
+		{
+			"key": "uid1",
+			"value": ""
+		},
+		{
+			"key": "reqid",
+			"value": 1,
+			"type": "number"
+		},
+		{
+			"key": "catId",
+			"value": ""
+		},
+		{
+			"key": "confirmedRequests",
+			"value": ""
+		},
+		{
+			"key": "responseArr",
+			"value": ""
+		},
+		{
+			"key": "source1",
+			"value": ""
+		},
+		{
+			"key": "source2",
+			"value": ""
+		},
+		{
+			"key": "fromId",
+			"value": "0"
+		},
+		{
+			"key": "source",
+			"value": ""
+		},
+		{
+			"key": "lon",
+			"value": "1.1",
+			"type": "string"
+		},
+		{
+			"key": "lat",
+			"value": "1.1",
+			"type": "string"
+		},
+		{
+			"key": "admLocId",
+			"value": "1",
+			"type": "string"
+		}
+	]
+}
