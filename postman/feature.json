@@ -66,6 +66,7 @@
 							"    pm.expect(responseData).to.be.an('object');",
 							"    pm.expect(responseData.id).to.be.a('number');",
 							"    pm.expect(responseData.id).to.be.at.least(0);",
+							"    pm.collectionVariables.set(\"feature_user_id\", responseData.id);",
 							"});",
 							"",
 							"",
@@ -119,6 +120,7 @@
 							"",
 							"pm.test(\"Response has id property\", function () {",
 							"    pm.expect(pm.response.json()).to.have.property('id');",
+							"    pm.collectionVariables.set(\"feature_cat_id\", pm.response.json().id);",
 							"});",
 							"",
 							"pm.test(\"Response has name property\", function () {",
@@ -184,7 +186,7 @@
 							"    const responseData = pm.response.json();",
 							"",
 							"    pm.expect(responseData.id).to.exist.and.to.be.a('number');",
-							"    pm.expect(responseData.id).to.eql(1);",
+							"    pm.collectionVariables.set(\"loc\", responseData.id);",
 							"});",
 							"",
 							"",
@@ -244,7 +246,7 @@
 							"    const responseData = pm.response.json();",
 							"",
 							"    pm.expect(responseData).to.be.an('object');",
-							"    pm.expect(responseData.id).to.eql(1);",
+							"    pm.expect(responseData.id).to.eql(pm.collectionVariables.get(\"loc\"));",
 							"});",
 							"",
 							"",
@@ -283,14 +285,14 @@
 					}
 				},
 				"url": {
-					"raw": "{{baseUrl}}/admin/locations/1",
+					"raw": "{{baseUrl}}/admin/locations/{{loc}}",
 					"host": [
 						"{{baseUrl}}"
 					],
 					"path": [
 						"admin",
 						"locations",
-						"1"
+						"{{loc}}"
 					]
 				}
 			},
@@ -343,7 +345,7 @@
 							"    const responseData = pm.response.json();",
 							"",
 							"    responseData.forEach(function (location) {",
-							"        pm.expect(location.id).to.be.a('number').to.eql(1);",
+							"        pm.expect(location.id).to.be.a('number').to.eql(pm.collectionVariables.get(\"loc\"));",
 							"    });",
 							"});",
 							"",
@@ -378,23 +380,23 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "{{baseUrl}}/users/1/locations?lon=10&lat=15",
+					"raw": "{{baseUrl}}/users/{{feature_user_id}}/locations?lon={{lon}}&lat={{lat}}",
 					"host": [
 						"{{baseUrl}}"
 					],
 					"path": [
 						"users",
-						"1",
+						"{{feature_user_id}}",
 						"locations"
 					],
 					"query": [
 						{
 							"key": "lon",
-							"value": "10"
+							"value": "{{lon}}"
 						},
 						{
 							"key": "lat",
-							"value": "15"
+							"value": "{{lat}}"
 						}
 					]
 				}
@@ -413,11 +415,12 @@
 							"",
 							"pm.test(\"Response should have a 'location' property\", function () {",
 							"    pm.expect(responseBody).to.have.property('location');",
+							"    pm.collectionVariables.set(\"feature_event\", responseBody.id);",
 							"});",
 							"",
 							"pm.test(\"Location should have 'id'\", function () {",
 							"    pm.expect(responseBody.location).to.have.property('id');",
-							"    pm.expect(responseBody.location.id).to.eql(1);",
+							"    pm.expect(responseBody.location.id).to.eql(pm.collectionVariables.get(\"loc\"));",
 							"});",
 							"",
 							"pm.test(\"Location should have 'lon' property with a valid longitude value\", function () {",
@@ -455,7 +458,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"annotation\": \"Сплав на байдарках похож на полет.\",\n  \"category\": 1,\n  \"description\": \"Сплав на байдарках похож на полет. На спокойной воде — это парение. На бурной, порожистой — выполнение фигур высшего пилотажа. И то, и другое дарят чувство обновления, феерические эмоции, яркие впечатления.\",\n  \"eventDate\": \"2024-12-31 15:10:05\",\n  \"location\": {\n      \"id\": 1,\n      \"lat\": 1.1,\n      \"lon\": 1.1\n  },\n  \"paid\": true,\n  \"participantLimit\": 10,\n  \"title\": \"Сплав на байдарках\"\n}",
+					"raw": "{\n  \"annotation\": \"Сплав на байдарках похож на полет.\",\n  \"category\": 1,\n  \"description\": \"Сплав на байдарках похож на полет. На спокойной воде — это парение. На бурной, порожистой — выполнение фигур высшего пилотажа. И то, и другое дарят чувство обновления, феерические эмоции, яркие впечатления.\",\n  \"eventDate\": \"2024-12-31 15:10:05\",\n  \"location\": {\n      \"id\": {{loc}},\n      \"lat\": {{lat}},\n      \"lon\": {{lon}}\n  },\n  \"paid\": true,\n  \"participantLimit\": 10,\n  \"title\": \"Сплав на байдарках\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -463,13 +466,13 @@
 					}
 				},
 				"url": {
-					"raw": "{{baseUrl}}/users/1/events",
+					"raw": "{{baseUrl}}/users/{{feature_user_id}}/events",
 					"host": [
 						"{{baseUrl}}"
 					],
 					"path": [
 						"users",
-						"1",
+						"{{feature_user_id}}",
 						"events"
 					]
 				}
@@ -492,7 +495,7 @@
 							"",
 							"pm.test(\"Location should have 'id'\", function () {",
 							"    pm.expect(responseBody.location).to.have.property('id');",
-							"    pm.expect(responseBody.location.id).to.eql(1);",
+							"    pm.expect(responseBody.location.id).to.eql(pm.collectionVariables.get(\"loc\"));",
 							"});",
 							"",
 							"pm.test(\"Location should have 'lon' property with a valid longitude value\", function () {",
@@ -529,7 +532,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"annotation\": \"Сплав на байдарках похож на полет.\",\n  \"category\": 1,\n  \"description\": \"Сплав на байдарках похож на полет. На спокойной воде — это парение. На бурной, порожистой — выполнение фигур высшего пилотажа. И то, и другое дарят чувство обновления, феерические эмоции, яркие впечатления.\",\n  \"eventDate\": \"2024-12-31 15:10:05\",\n  \"location\": {\n      \"lat\": {{lat}},\n      \"lon\": {{lon}}\n  },\n  \"paid\": true,\n  \"participantLimit\": 10,\n  \"title\": \"Сплав на байдарках\"\n}",
+					"raw": "{\n  \"annotation\": \"Сплав на байдарках похож на полет.\",\n  \"category\": {{feature_cat_id}},\n  \"description\": \"Сплав на байдарках похож на полет. На спокойной воде — это парение. На бурной, порожистой — выполнение фигур высшего пилотажа. И то, и другое дарят чувство обновления, феерические эмоции, яркие впечатления.\",\n  \"eventDate\": \"2024-12-31 15:10:05\",\n  \"location\": {\n      \"lat\": {{lat}},\n      \"lon\": {{lon}}\n  },\n  \"paid\": true,\n  \"participantLimit\": 10,\n  \"title\": \"Сплав на байдарках\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -537,13 +540,13 @@
 					}
 				},
 				"url": {
-					"raw": "{{baseUrl}}/users/1/events",
+					"raw": "{{baseUrl}}/users/{{feature_user_id}}/events",
 					"host": [
 						"{{baseUrl}}"
 					],
 					"path": [
 						"users",
-						"1",
+						"{{feature_user_id}}",
 						"events"
 					]
 				}
@@ -570,7 +573,7 @@
 							"",
 							"pm.test(\"Location should have new 'id'\", function () {",
 							"    pm.expect(responseBody.location).to.have.property('id');",
-							"    pm.expect(responseBody.location.id).to.eql(2);",
+							"    pm.expect(responseBody.location.id).to.eql(pm.collectionVariables.get(\"loc\")+1);",
 							"});",
 							"",
 							"pm.test(\"Location should have 'lon' property with a valid longitude value\", function () {",
@@ -595,7 +598,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"annotation\": \"Сплав на байдарках похож на полет.\",\n  \"category\": 1,\n  \"description\": \"Сплав на байдарках похож на полет. На спокойной воде — это парение. На бурной, порожистой — выполнение фигур высшего пилотажа. И то, и другое дарят чувство обновления, феерические эмоции, яркие впечатления.\",\n  \"eventDate\": \"2024-12-31 15:10:05\",\n  \"location\": {\n    \"lon\": 1.11,\n        \"lat\": 1.1\n  },\n  \"paid\": true,\n  \"participantLimit\": 10,\n  \"title\": \"Сплав на байдарках\"\n}",
+					"raw": "{\n  \"annotation\": \"Сплав на байдарках похож на полет.\",\n  \"category\": {{feature_cat_id}},\n  \"description\": \"Сплав на байдарках похож на полет. На спокойной воде — это парение. На бурной, порожистой — выполнение фигур высшего пилотажа. И то, и другое дарят чувство обновления, феерические эмоции, яркие впечатления.\",\n  \"eventDate\": \"2024-12-31 15:10:05\",\n  \"location\": {\n    \"lon\": 1.11,\n        \"lat\": 1.1\n  },\n  \"paid\": true,\n  \"participantLimit\": 10,\n  \"title\": \"Сплав на байдарках\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -603,13 +606,13 @@
 					}
 				},
 				"url": {
-					"raw": "{{baseUrl}}/users/1/events",
+					"raw": "{{baseUrl}}/users/{{feature_user_id}}/events",
 					"host": [
 						"{{baseUrl}}"
 					],
 					"path": [
 						"users",
-						"1",
+						"{{feature_user_id}}",
 						"events"
 					]
 				}
@@ -632,7 +635,7 @@
 							"",
 							"pm.test(\"Location should have same 'id'\", function () {",
 							"    pm.expect(responseBody.location).to.have.property('id');",
-							"    pm.expect(responseBody.location.id).to.eql(1);",
+							"    pm.expect(responseBody.location.id).to.eql(pm.collectionVariables.get(\"loc\"));",
 							"});",
 							"",
 							"pm.test(\"Location should have 'lon' property with a valid longitude value\", function () {",
@@ -669,7 +672,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"annotation\": \"Сплав на байдарках похож на полет.\",\n  \"category\": 1,\n  \"description\": \"Сплав на байдарках похож на полет. На спокойной воде — это парение. На бурной, порожистой — выполнение фигур высшего пилотажа. И то, и другое дарят чувство обновления, феерические эмоции, яркие впечатления.\",\n  \"eventDate\": \"2024-12-31 15:10:05\",\n  \"location\": {\n      \"id\": 1,\n      \"lat\": 1.1,\n      \"lon\": 1.1\n  },\n  \"paid\": true,\n  \"participantLimit\": 10,\n  \"title\": \"Сплав на байдарках\"\n}",
+					"raw": "{\n  \"annotation\": \"Сплав на байдарках похож на полет.\",\n  \"category\": {{feature_cat_id}},\n  \"description\": \"Сплав на байдарках похож на полет. На спокойной воде — это парение. На бурной, порожистой — выполнение фигур высшего пилотажа. И то, и другое дарят чувство обновления, феерические эмоции, яркие впечатления.\",\n  \"eventDate\": \"2024-12-31 15:10:05\",\n  \"location\": {\n      \"id\": {{loc}},\n      \"lat\": {{lat}},\n      \"lon\": {{lon}}\n  },\n  \"paid\": true,\n  \"participantLimit\": 10,\n  \"title\": \"Сплав на байдарках\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -677,13 +680,13 @@
 					}
 				},
 				"url": {
-					"raw": "{{baseUrl}}/users/1/events",
+					"raw": "{{baseUrl}}/users/{{feature_user_id}}/events",
 					"host": [
 						"{{baseUrl}}"
 					],
 					"path": [
 						"users",
-						"1",
+						"{{feature_user_id}}",
 						"events"
 					]
 				}
@@ -706,7 +709,7 @@
 							"",
 							"pm.test(\"Location should have 'id'\", function () {",
 							"    pm.expect(responseBody.location).to.have.property('id');",
-							"    pm.expect(responseBody.location.id).to.eql(1);",
+							"    pm.expect(responseBody.location.id).to.eql(pm.collectionVariables.get(\"loc\"));",
 							"});",
 							"",
 							"pm.test(\"Location should have 'lon' property without changes\", function () {",
@@ -743,7 +746,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"annotation\": \"Сплав на байдарках похож на полет.\",\n  \"category\": 1,\n  \"description\": \"Сплав на байдарках похож на полет. На спокойной воде — это парение. На бурной, порожистой — выполнение фигур высшего пилотажа. И то, и другое дарят чувство обновления, феерические эмоции, яркие впечатления.\",\n  \"eventDate\": \"2024-12-31 15:10:05\",\n  \"location\": {\n      \"id\": 1,\n      \"lat\": 2.0,\n      \"lon\": 2.0\n  },\n  \"paid\": true,\n  \"participantLimit\": 10,\n  \"title\": \"Сплав на байдарках\"\n}",
+					"raw": "{\n  \"annotation\": \"Сплав на байдарках похож на полет.\",\n  \"category\": {{feature_cat_id}},\n  \"description\": \"Сплав на байдарках похож на полет. На спокойной воде — это парение. На бурной, порожистой — выполнение фигур высшего пилотажа. И то, и другое дарят чувство обновления, феерические эмоции, яркие впечатления.\",\n  \"eventDate\": \"2024-12-31 15:10:05\",\n  \"location\": {\n      \"id\": {{loc}},\n      \"lat\": 2.0,\n      \"lon\": 2.0\n  },\n  \"paid\": true,\n  \"participantLimit\": 10,\n  \"title\": \"Сплав на байдарках\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -751,13 +754,13 @@
 					}
 				},
 				"url": {
-					"raw": "{{baseUrl}}/users/1/events",
+					"raw": "{{baseUrl}}/users/{{feature_user_id}}/events",
 					"host": [
 						"{{baseUrl}}"
 					],
 					"path": [
 						"users",
-						"1",
+						"{{feature_user_id}}",
 						"events"
 					]
 				}
@@ -780,7 +783,7 @@
 							"",
 							"pm.test(\"Location should have 'id'\", function () {",
 							"    pm.expect(responseBody.location).to.have.property('id');",
-							"    pm.expect(responseBody.location.id).to.eql(3);",
+							"    pm.expect(responseBody.location.id).to.eql(pm.collectionVariables.get(\"loc\")+2);",
 							"});",
 							"",
 							"pm.test(\"Location should have 'lon' property without changes\", function () {",
@@ -808,7 +811,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"annotation\": \"Сап прогулки по рекам и каналам – это возможность увидеть Практикбург с другого ракурса\",\n  \"category\": 1,\n  \"description\": \"От английского SUP - Stand Up Paddle — \\\"стоя на доске с веслом\\\", гавайская разновидность сёрфинга, в котором серфер, стоя на доске, катается на волнах и при этом гребет веслом, а не руками, как в классическом серфинге.\",\n  \"eventDate\": \"2023-10-11 23:10:05\",\n  \"location\": {\n    \"lat\": 55.555,\n    \"lon\": 37.66\n  },\n  \"paid\": true,\n  \"participantLimit\": 7,\n  \"requestModeration\": false,\n  \"stateAction\": \"CANCEL_REVIEW\",\n  \"title\": \"Сап прогулки по рекам и каналам\"\n}",
+					"raw": "{\n  \"annotation\": \"Сап прогулки по рекам и каналам – это возможность увидеть Практикбург с другого ракурса\",\n  \"category\": {{feature_cat_id}},\n  \"description\": \"От английского SUP - Stand Up Paddle — \\\"стоя на доске с веслом\\\", гавайская разновидность сёрфинга, в котором серфер, стоя на доске, катается на волнах и при этом гребет веслом, а не руками, как в классическом серфинге.\",\n  \"eventDate\": \"2023-10-11 23:10:05\",\n  \"location\": {\n    \"lat\": 55.555,\n    \"lon\": 37.66\n  },\n  \"paid\": true,\n  \"participantLimit\": 7,\n  \"requestModeration\": false,\n  \"title\": \"Сап прогулки по рекам и каналам\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -816,15 +819,15 @@
 					}
 				},
 				"url": {
-					"raw": "{{baseUrl}}/users/1/events/1",
+					"raw": "{{baseUrl}}/users/{{feature_user_id}}/events/{{feature_event}}",
 					"host": [
 						"{{baseUrl}}"
 					],
 					"path": [
 						"users",
-						"1",
+						"{{feature_user_id}}",
 						"events",
-						"1"
+						"{{feature_event}}"
 					]
 				}
 			},
@@ -849,13 +852,13 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "{{baseUrl}}/users/1/events/",
+					"raw": "{{baseUrl}}/users/{{feature_user_id}}/events/",
 					"host": [
 						"{{baseUrl}}"
 					],
 					"path": [
 						"users",
-						"1",
+						"{{feature_user_id}}",
 						"events",
 						""
 					]
@@ -874,7 +877,8 @@
 							"",
 							"pm.test(\"Response should have an 'id' property\", function () {",
 							"    pm.expect(responseBody).to.have.property('id');",
-							"    pm.expect(responseBody.id).to.equal(4);",
+							"    pm.expect(responseBody.id).to.equal(pm.collectionVariables.get(\"loc\")+3);",
+							"    pm.collectionVariables.set(\"del_loc\", responseBody.id);",
 							"});",
 							"",
 							"pm.test(\"Response should have a 'lat' property with value 7.0\", function () {",
@@ -979,14 +983,14 @@
 				"method": "DELETE",
 				"header": [],
 				"url": {
-					"raw": "{{baseUrl}}/admin/locations/4",
+					"raw": "{{baseUrl}}/admin/locations/{{del_loc}}",
 					"host": [
 						"{{baseUrl}}"
 					],
 					"path": [
 						"admin",
 						"locations",
-						"4"
+						"{{del_loc}}"
 					]
 				}
 			},
@@ -1011,14 +1015,14 @@
 				"method": "DELETE",
 				"header": [],
 				"url": {
-					"raw": "{{baseUrl}}/admin/locations/1",
+					"raw": "{{baseUrl}}/admin/locations/{{loc}}",
 					"host": [
 						"{{baseUrl}}"
 					],
 					"path": [
 						"admin",
 						"locations",
-						"1"
+						"{{loc}}"
 					]
 				}
 			},
@@ -1052,14 +1056,14 @@
 					}
 				},
 				"url": {
-					"raw": "{{baseUrl}}/admin/events/2",
+					"raw": "{{baseUrl}}/admin/events/{{feature_event}}",
 					"host": [
 						"{{baseUrl}}"
 					],
 					"path": [
 						"admin",
 						"events",
-						"2"
+						"{{feature_event}}"
 					]
 				}
 			},
@@ -1073,7 +1077,9 @@
 					"script": {
 						"exec": [
 							"pm.test(\"Response status code is 201\", function () {",
+							"    responseBody = pm.response.json();",
 							"    pm.expect(pm.response.code).to.equal(201);",
+							"    pm.collectionVariables.set(\"feature_event_6\", responseBody.id);",
 							"});",
 							""
 						],
@@ -1086,7 +1092,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"annotation\": \"Сплав на байдарках похож на полет.\",\n  \"category\": 1,\n  \"description\": \"Сплав на байдарках похож на полет. На спокойной воде — это парение. На бурной, порожистой — выполнение фигур высшего пилотажа. И то, и другое дарят чувство обновления, феерические эмоции, яркие впечатления.\",\n  \"eventDate\": \"2024-12-31 15:10:05\",\n  \"location\": {\n    \"lon\": 1,\n        \"lat\": 1\n  },\n  \"paid\": true,\n  \"participantLimit\": 10,\n  \"title\": \"Сплав на байдарках\"\n}",
+					"raw": "{\n  \"annotation\": \"Сплав на байдарках похож на полет.\",\n  \"category\": {{feature_cat_id}},\n  \"description\": \"Сплав на байдарках похож на полет. На спокойной воде — это парение. На бурной, порожистой — выполнение фигур высшего пилотажа. И то, и другое дарят чувство обновления, феерические эмоции, яркие впечатления.\",\n  \"eventDate\": \"2024-12-31 15:10:05\",\n  \"location\": {\n    \"lon\": 1,\n    \"lat\": 1\n  },\n  \"paid\": true,\n  \"participantLimit\": 10,\n  \"title\": \"Сплав на байдарках\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -1094,13 +1100,13 @@
 					}
 				},
 				"url": {
-					"raw": "{{baseUrl}}/users/1/events",
+					"raw": "{{baseUrl}}/users/{{feature_user_id}}/events",
 					"host": [
 						"{{baseUrl}}"
 					],
 					"path": [
 						"users",
-						"1",
+						"{{feature_user_id}}",
 						"events"
 					]
 				}
@@ -1109,6 +1115,19 @@
 		},
 		{
 			"name": "Публикация события 6",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Response status code is 200\", function () {",
+							"    pm.expect(pm.response.code).to.equal(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"request": {
 				"method": "PATCH",
 				"header": [],
@@ -1122,14 +1141,14 @@
 					}
 				},
 				"url": {
-					"raw": "{{baseUrl}}/admin/events/6",
+					"raw": "{{baseUrl}}/admin/events/{{feature_event_6}}",
 					"host": [
 						"{{baseUrl}}"
 					],
 					"path": [
 						"admin",
 						"events",
-						"6"
+						"{{feature_event_6}}"
 					]
 				}
 			},
@@ -1150,12 +1169,7 @@
 							"",
 							"pm.test(\"Response should be an array\", function () {",
 							"    pm.expect(responseBody).to.be.an('array');",
-							"    pm.expect(responseBody).to.have.length(1);",
-							"});",
-							"",
-							"pm.test(\"The 'id' field should be equal to 2\", function () {",
-							"    pm.expect(responseBody[0]).to.have.property('id');",
-							"    pm.expect(responseBody[0].id).to.equal(2);",
+							"    pm.expect(responseBody).to.have.length(0);",
 							"});"
 						],
 						"type": "text/javascript"
@@ -1166,7 +1180,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "{{baseUrl}}/events?lon={{lon}}&lat={{lat}}&dist=5",
+					"raw": "{{baseUrl}}/events?lon={{lon}}&lat={{lat}}&dist=15",
 					"host": [
 						"{{baseUrl}}"
 					],
@@ -1184,7 +1198,7 @@
 						},
 						{
 							"key": "dist",
-							"value": "5",
+							"value": "15",
 							"description": "расстояние до события в км"
 						}
 					]
@@ -1207,12 +1221,12 @@
 							"",
 							"pm.test(\"Response should be an array\", function () {",
 							"    pm.expect(responseBody).to.be.an('array');",
-							"    pm.expect(responseBody).to.have.length(2);",
+							"    pm.expect(responseBody).to.have.length(1);",
 							"});",
 							"",
-							"pm.test(\"The 'id' field should be equal to 2\", function () {",
-							"    pm.expect(responseBody[1]).to.have.property('id');",
-							"    pm.expect(responseBody[1].id).to.equal(6);",
+							"pm.test(\"The 'id' field should be\", function () {",
+							"    pm.expect(responseBody[0]).to.have.property('id');",
+							"    pm.expect(responseBody[0].id).to.equal(pm.collectionVariables.get(\"feature_event_6\"));",
 							"});"
 						],
 						"type": "text/javascript"
@@ -1713,17 +1727,42 @@
 		},
 		{
 			"key": "lon",
-			"value": "1.1",
+			"value": "1.11111",
 			"type": "string"
 		},
 		{
 			"key": "lat",
-			"value": "1.1",
+			"value": "1.11111",
 			"type": "string"
 		},
 		{
-			"key": "admLocId",
+			"key": "loc",
 			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "feature_cat_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "feature_user_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "feature_event",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "del_loc",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "feature_event_6",
+			"value": "",
 			"type": "string"
 		}
 	]
