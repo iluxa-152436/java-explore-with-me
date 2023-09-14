@@ -24,7 +24,7 @@ public class Location {
     private String name;
     @Column(name = "description")
     private String description;
-    @Column(name= "approved", nullable = false)
+    @Column(name = "approved", nullable = false)
     boolean approved = false;
 
     @Override
