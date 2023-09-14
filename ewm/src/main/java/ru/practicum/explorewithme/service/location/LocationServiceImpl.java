@@ -25,6 +25,9 @@ public class LocationServiceImpl implements LocationService {
     @Override
     public LocationDto addLocation(LocationRequest locationRequest) {
         Location location = mapper.map(locationRequest, Location.class);
+        if (locationStorage.findByLonAndLatAndApproved(location.getLon(), location.getLat(), true).isPresent()) {
+            throw new IllegalArgumentException("Уже существует");
+        }
         location.setApproved(true);
         return mapper.map(locationStorage.save(location), LocationDto.class);
     }

@@ -17,6 +17,8 @@ import ru.practicum.explorewithme.service.event.EventService;
 import ru.practicum.explorewithme.service.event.TypeOfSorting;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -54,8 +56,8 @@ public class PublicController {
                                          @RequestParam(defaultValue = FROM) int from,
                                          @RequestParam(defaultValue = SIZE) int size,
                                          @RequestParam(defaultValue = "EVENT_DATE") TypeOfSorting sort,
-                                         @RequestParam Optional<Double> lon,
-                                         @RequestParam Optional<Double> lat,
+                                         @RequestParam @Min(-180) @Max(180) Optional<Double> lon,
+                                         @RequestParam @Min(-90) @Max(90) Optional<Double> lat,
                                          @RequestParam Optional<Double> dist,
                                          HttpServletRequest request) {
         log.debug("Поступил запрос на получение событий с фильтрацией");
