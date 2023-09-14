@@ -495,7 +495,7 @@
 							"",
 							"pm.test(\"Location should have 'id'\", function () {",
 							"    pm.expect(responseBody.location).to.have.property('id');",
-							"    pm.expect(responseBody.location.id).to.eql(pm.collectionVariables.get(\"loc\"));",
+							"    pm.expect(responseBody.location.id).to.eql(parseInt(pm.collectionVariables.get(\"loc\")));",
 							"});",
 							"",
 							"pm.test(\"Location should have 'lon' property with a valid longitude value\", function () {",
