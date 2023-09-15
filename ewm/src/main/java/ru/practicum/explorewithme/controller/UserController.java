@@ -8,10 +8,12 @@ import ru.practicum.explorewithme.dto.event.EventFullDto;
 import ru.practicum.explorewithme.dto.event.EventShortDto;
 import ru.practicum.explorewithme.dto.event.NewEventRequest;
 import ru.practicum.explorewithme.dto.event.UpdateEventUserRequest;
+import ru.practicum.explorewithme.dto.location.LocationDto;
 import ru.practicum.explorewithme.dto.participationRequest.EventRequestStatusUpdateRequest;
 import ru.practicum.explorewithme.dto.participationRequest.EventRequestStatusUpdateResult;
 import ru.practicum.explorewithme.dto.participationRequest.ParticipationRequestDto;
 import ru.practicum.explorewithme.service.event.EventService;
+import ru.practicum.explorewithme.service.location.LocationService;
 import ru.practicum.explorewithme.service.request.ParticipationRequestService;
 
 import javax.validation.Valid;
@@ -27,6 +29,7 @@ import static ru.practicum.explorewithme.constant.DefaultValue.SIZE;
 public class UserController {
     private final EventService eventService;
     private final ParticipationRequestService requestService;
+    private final LocationService locationService;
 
     @PostMapping("/events")
     @ResponseStatus(HttpStatus.CREATED)
@@ -96,5 +99,10 @@ public class UserController {
                 eventId,
                 updateRequest.getStatus());
         return requestService.updateRequestByEventOwner(userId, eventId, updateRequest);
+    }
+
+    @GetMapping("/locations")
+    public List<LocationDto> getNearestLocations(@PathVariable long userId, @RequestParam double lon, @RequestParam double lat) {
+        return locationService.getNearestApprovedLocation(userId, lon, lat);
     }
 }

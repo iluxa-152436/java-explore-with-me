@@ -34,12 +34,13 @@ public class EventMapper {
     private final ModelMapper mapper;
     private final boolean uniqueIp = true;
 
-    public Event toEntity(long userId, NewEventRequest newEventRequest, EventState state) {
+    public Event toEntity(long userId, NewEventRequest newEventRequest, EventState state, Location location) {
+        log.debug("Location in event={}", location);
         return Event.builder().annotation(newEventRequest.getAnnotation())
                 .category(categoryStorage.findById(newEventRequest.getCategory()).get())
                 .description(newEventRequest.getDescription())
                 .eventDate(newEventRequest.getEventDate())
-                .location(mapper.map(newEventRequest.getLocation(), Location.class))
+                .location(location)
                 .paid(newEventRequest.isPaid())
                 .participantLimit(newEventRequest.getParticipantLimit())
                 .title(newEventRequest.getTitle())
@@ -83,13 +84,12 @@ public class EventMapper {
                 .build();
     }
 
-    public Event toEntity(Event event, UpdateEventUserRequest updateEventUserRequest) {
+    public Event toEntity(Event event, UpdateEventUserRequest updateEventUserRequest, Location location) {
         Optional.ofNullable(updateEventUserRequest.getEventDate()).ifPresent(event::setEventDate);
         Optional.ofNullable(updateEventUserRequest.getRequestModeration()).ifPresent(event::setRequestModeration);
         Optional.ofNullable(updateEventUserRequest.getAnnotation()).ifPresent(event::setAnnotation);
         Optional.ofNullable(updateEventUserRequest.getDescription()).ifPresent(event::setDescription);
-        Optional.ofNullable(updateEventUserRequest.getLocation())
-                .ifPresent(location -> event.setLocation(mapper.map(location, Location.class)));
+        Optional.ofNullable(location).ifPresent(event::setLocation);
         Optional.ofNullable(updateEventUserRequest.getParticipantLimit()).ifPresent(event::setParticipantLimit);
         Optional.ofNullable(updateEventUserRequest.getCategory())
                 .ifPresent(categoryId -> event.setCategory(categoryStorage.findById(categoryId).get()));

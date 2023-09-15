@@ -36,6 +36,9 @@ public interface EventService {
                                   int from,
                                   int size,
                                   TypeOfSorting sort,
+                                  Optional<Double> lon,
+                                  Optional<Double> lat,
+                                  Optional<Double> dist,
                                   String ip);
 
     EventFullDto getPublicEventById(long eventId, String ip);

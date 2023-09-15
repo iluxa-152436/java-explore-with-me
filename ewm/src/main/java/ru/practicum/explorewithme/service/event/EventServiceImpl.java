@@ -2,18 +2,22 @@ package ru.practicum.explorewithme.service.event;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.explorewithme.StatsClient;
 import ru.practicum.explorewithme.dto.event.*;
+import ru.practicum.explorewithme.dto.location.LocationShortDto;
 import ru.practicum.explorewithme.entity.Event;
 import ru.practicum.explorewithme.entity.EventState;
+import ru.practicum.explorewithme.entity.Location;
 import ru.practicum.explorewithme.entity.RequestPage;
 import ru.practicum.explorewithme.exception.IllegalEventStateException;
 import ru.practicum.explorewithme.exception.NotFoundException;
 import ru.practicum.explorewithme.mapper.EventMapper;
+import ru.practicum.explorewithme.service.location.LocationService;
 import ru.practicum.explorewithme.service.request.ParticipationRequestService;
 import ru.practicum.explorewithme.service.user.UserService;
 import ru.practicum.explorewithme.storage.EventStorage;
@@ -34,6 +38,8 @@ public class EventServiceImpl implements EventService {
     private final UserService userService;
     private final StatsClient statsClient;
     private final ParticipationRequestService requestService;
+    private final LocationService locationService;
+    private final ModelMapper mapper;
 
     @Override
     public EventFullDto addNewEvent(long userId, NewEventRequest newEventRequest) {
@@ -42,8 +48,9 @@ public class EventServiceImpl implements EventService {
         if (newEventRequest.getRequestModeration() == null) {
             newEventRequest.setRequestModeration(true);
         }
-        Event event = eventMapper.toEntity(userId, newEventRequest, EventState.PENDING);
-        log.debug("Event entity={}", event);
+        Location location = calculateLocation(newEventRequest.getLocation()).get();
+        Event event = eventMapper.toEntity(userId, newEventRequest, EventState.PENDING, location);
+        log.debug("Event location {}", event.getLocation());
         return eventMapper.toEventFullDto(eventStorage.save(event), requestService.getNumberOfConfirmed(event.getId()));
     }
 
@@ -72,10 +79,11 @@ public class EventServiceImpl implements EventService {
         Event event = eventStorage.findByIdAndInitiatorId(eventId, userId)
                 .orElseThrow(() -> new NotFoundException("Event with id=" + eventId + " was not found"));
         if (event.getState().equals(EventState.PUBLISHED)) {
-            throw new IllegalEventStateException("Статус события не позволяет изменить событие");
+            throw new IllegalEventStateException("Статус события " + event.getState() + " не позволяет изменить событие");
         } else {
+            Location location = calculateLocation(updateEventUserRequest.getLocation()).orElse(null);
             return eventMapper.toEventFullDto(eventStorage.save(eventMapper.toEntity(event,
-                    updateEventUserRequest)), requestService.getNumberOfConfirmed(event.getId()));
+                    updateEventUserRequest, location)), requestService.getNumberOfConfirmed(event.getId()));
         }
     }
 
@@ -109,6 +117,9 @@ public class EventServiceImpl implements EventService {
                                          int from,
                                          int size,
                                          TypeOfSorting sort,
+                                         Optional<Double> lon,
+                                         Optional<Double> lat,
+                                         Optional<Double> dist,
                                          String ip) {
         PageRequest pageRequest = RequestPage.getPageable(from, size, Optional.of(sort));
         Page<Event> eventPage = getPublicEventsPage(text,
@@ -117,6 +128,9 @@ public class EventServiceImpl implements EventService {
                 rangeStart,
                 rangeEnd,
                 onlyAvailable,
+                lon,
+                lat,
+                dist,
                 pageRequest);
         List<EventShortDto> result = eventMapper.toEventShortDtoList(eventPage, getMapEventConfirmed(eventPage));
         statsClient.postHit("/events", ip);
@@ -128,7 +142,7 @@ public class EventServiceImpl implements EventService {
         log.debug("Update event by admin, parameters of new event={} eventId={}", updateEventAdminRequest, eventId);
         Event oldEvent = getEvent(eventId);
         if (oldEvent.getPublished() != null && oldEvent.getEventDate().isBefore(oldEvent.getPublished().plusHours(1))) {
-            throw new IllegalArgumentException("The publication date must be no later than an hour before the event date");
+            throw new IllegalArgumentException("Publication date must be no later than an hour before the event date");
         } else {
             return eventMapper.toEventFullDto(eventStorage.save(eventMapper.toEntity(oldEvent,
                     updateEventAdminRequest)), requestService.getNumberOfConfirmed(eventId));
@@ -153,6 +167,27 @@ public class EventServiceImpl implements EventService {
     }
 
     @Transactional(readOnly = true)
+    private Optional<Location> calculateLocation(LocationShortDto locationShortDto) {
+        Location location;
+        if (locationShortDto == null) {
+            return Optional.empty();
+        }
+        if (Optional.ofNullable(locationShortDto.getId()).isPresent()) {
+            log.debug("Существующая локация id={}", locationShortDto.getId());
+            location = locationService.getLocation(locationShortDto.getId());
+            log.debug("Получена локация из базы {}", location);
+        } else if (locationService.getAdmLocationByGeoAndApproved(locationShortDto.getLon(),
+                locationShortDto.getLat(), true).isPresent()) {
+            location = locationService.getAdmLocationByGeoAndApproved(locationShortDto.getLon(),
+                    locationShortDto.getLat(), true).get();
+        } else {
+            location = mapper.map(locationShortDto, Location.class);
+            log.debug("Сформирована новая локация {}", location);
+        }
+        return Optional.of(location);
+    }
+
+    @Transactional(readOnly = true)
     private Event getEvent(long eventId) {
         Optional<Event> event = eventStorage.findById(eventId);
         if (event.isEmpty()) {
@@ -169,7 +204,12 @@ public class EventServiceImpl implements EventService {
                                             Optional<LocalDateTime> rangeStart,
                                             Optional<LocalDateTime> rangeEnd,
                                             boolean onlyAvailable,
+                                            Optional<Double> lon,
+                                            Optional<Double> lat,
+                                            Optional<Double> dist,
                                             PageRequest pageRequest) {
+        log.debug("Параметры поиска: {}, {}, {}, {}, {}, {}, {}, {}, {}", text, categories, paid, rangeStart,
+                rangeEnd, onlyAvailable, lon, lat, dist);
         if (rangeStart.isPresent() && rangeEnd.isPresent()) {
             if (rangeStart.get().isAfter(rangeEnd.get())) {
                 throw new IllegalArgumentException("range start and range end must be valid");
@@ -177,6 +217,11 @@ public class EventServiceImpl implements EventService {
         }
         if (rangeStart.isEmpty() && rangeEnd.isEmpty()) {
             rangeStart = Optional.of(LocalDateTime.now());
+            log.debug("Установлена начальная дата поиска событий {}", rangeStart);
+        }
+        if ((lon.isPresent() || lat.isPresent() || dist.isPresent())
+                && (lon.isEmpty() || lat.isEmpty() || dist.isEmpty())) {
+            throw new IllegalArgumentException("lon, lat, dist must be valid");
         }
         return eventStorage.findAllForPublicWithFilters(rangeEnd.orElse(null),
                 rangeStart.orElse(null),
@@ -185,6 +230,9 @@ public class EventServiceImpl implements EventService {
                 onlyAvailable,
                 text.orElse(null),
                 EventState.PUBLISHED.name(),
+                lon.orElse(null),
+                lat.orElse(null),
+                dist.orElse(null),
                 pageRequest);
     }
 
