@@ -79,7 +79,7 @@ public class EventServiceImpl implements EventService {
         Event event = eventStorage.findByIdAndInitiatorId(eventId, userId)
                 .orElseThrow(() -> new NotFoundException("Event with id=" + eventId + " was not found"));
         if (event.getState().equals(EventState.PUBLISHED)) {
-            throw new IllegalEventStateException("Статус события не позволяет изменить событие");
+            throw new IllegalEventStateException("Статус события " + event.getState() + " не позволяет изменить событие");
         } else {
             Location location = calculateLocation(updateEventUserRequest.getLocation()).orElse(null);
             return eventMapper.toEventFullDto(eventStorage.save(eventMapper.toEntity(event,
@@ -173,7 +173,7 @@ public class EventServiceImpl implements EventService {
             return Optional.empty();
         }
         if (Optional.ofNullable(locationShortDto.getId()).isPresent()) {
-            log.debug("Существующая локация");
+            log.debug("Существующая локация id={}", locationShortDto.getId());
             location = locationService.getLocation(locationShortDto.getId());
             log.debug("Получена локация из базы {}", location);
         } else if (locationService.getAdmLocationByGeoAndApproved(locationShortDto.getLon(),
@@ -181,9 +181,8 @@ public class EventServiceImpl implements EventService {
             location = locationService.getAdmLocationByGeoAndApproved(locationShortDto.getLon(),
                     locationShortDto.getLat(), true).get();
         } else {
-            log.debug("Новая локация");
             location = mapper.map(locationShortDto, Location.class);
-            log.debug("Сформирована локация");
+            log.debug("Сформирована новая локация {}", location);
         }
         return Optional.of(location);
     }

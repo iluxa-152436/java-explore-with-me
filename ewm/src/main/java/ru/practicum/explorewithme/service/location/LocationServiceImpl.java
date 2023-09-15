@@ -39,6 +39,7 @@ public class LocationServiceImpl implements LocationService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Location getLocation(long locationId) {
         return locationStorage.findById(locationId)
                 .orElseThrow(() -> new NotFoundException("Location with id=" + locationId + " not found"));
@@ -68,6 +69,7 @@ public class LocationServiceImpl implements LocationService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<Location> getAdmLocationByGeoAndApproved(double lon, double lat, boolean approved) {
         return locationStorage.findByLonAndLatAndApproved(lon, lat, approved);
     }

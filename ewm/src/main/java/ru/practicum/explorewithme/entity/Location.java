@@ -25,7 +25,7 @@ public class Location {
     @Column(name = "description")
     private String description;
     @Column(name = "approved", nullable = false)
-    boolean approved = false;
+    private boolean approved = false;
 
     @Override
     public boolean equals(Object o) {
